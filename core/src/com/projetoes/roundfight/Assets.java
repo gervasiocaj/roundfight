@@ -4,6 +4,11 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.CircleShape;
+import com.badlogic.gdx.physics.box2d.FixtureDef;
+import com.badlogic.gdx.physics.box2d.World;
 
 /**
  * Created by Gervasio on 6/6/2015.
@@ -31,5 +36,26 @@ public class Assets {
         ready = new TextureRegion(items, 320, 224, 192, 32);
         gameOver = new TextureRegion(items, 352, 256, 160, 96);
         */
+    }
+
+    public static Body createBall(World world) {
+        BodyDef bodyDef = new BodyDef();
+        bodyDef.type = BodyDef.BodyType.DynamicBody;
+        bodyDef.position.set(0, 0);
+
+        CircleShape shape = new CircleShape();
+        shape.setRadius(.025f); // tamanho padrao da bola de gude/bila/chimbra
+
+        FixtureDef fixtureDef = new FixtureDef();
+        fixtureDef.shape = shape;
+        fixtureDef.density = 2.7f; // http://www.engineeringtoolbox.com/density-solids-d_1265.html
+        fixtureDef.friction = 0.25f;
+        fixtureDef.restitution = .75f;
+
+        Body body = world.createBody(bodyDef);
+        body.createFixture(fixtureDef);
+        shape.dispose();
+
+        return body;
     }
 }

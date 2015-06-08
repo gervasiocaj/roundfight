@@ -17,6 +17,7 @@ public class MainMenuScreen extends ScreenAdapter {
     private Table table;
     private Stage stage;
     private TextButton.TextButtonStyle textButtonStyle;
+    private TextButton buttonStart, buttonExit;
 
     public MainMenuScreen(MyGdxGame game) {
         this.game = game;
@@ -43,7 +44,7 @@ public class MainMenuScreen extends ScreenAdapter {
         textButtonStyle = new TextButton.TextButtonStyle();
         textButtonStyle.font = Assets.font_medium;
 
-        Button buttonExit = new TextButton("Exit", textButtonStyle);
+        buttonExit = new TextButton("Exit", textButtonStyle);
         buttonExit.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -51,7 +52,7 @@ public class MainMenuScreen extends ScreenAdapter {
             }
         });
 
-        Button buttonStart = new TextButton("Start", textButtonStyle);
+        buttonStart = new TextButton("Start", textButtonStyle);
         buttonStart.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
