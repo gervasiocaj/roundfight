@@ -43,16 +43,18 @@ class GameStage extends Stage {
         world = new World(new Vector2(0, 0), true);
         renderer = new Box2DDebugRenderer();
         //camera = new OrthographicCamera(Gdx.graphics.getWidth()/1100f, Gdx.graphics.getHeight()/1100f);
-        camera = new OrthographicCamera(1, Float.valueOf(Gdx.graphics.getHeight()) / Float.valueOf(Gdx.graphics.getWidth()));
 
-        ball = Assets.createBall(world);
+        // o mundo é infinito para todos os lados, e a câmera está a uma altura x do ponto inicial
+        // não lembro exatamente como cheguei a esta fórmula, mas deve funcionar para todas as resoluções de tela
+        camera = new OrthographicCamera(1, Float.valueOf(Gdx.graphics.getHeight()) / Float.valueOf(Gdx.graphics.getWidth()));
+        ball = Assets.createBall(world); // cria uma nova bola neste mundo
     }
 
     @Override
     public void act(float delta) {
         super.act(delta);
-        world.step(1 / 45f, 6, 2);
-        // ball.applyForceToCenter(Gdx.input.getAccelerometerX(),Gdx.input.getAccelerometerY(), true);
+        world.step(1 / 45f, 6, 2); // com que frequência a tela é atualizada, 45 frames por segundo. Esses valores 6 e 2 são "padroes" para android.
+        ball.applyForceToCenter(Gdx.input.getAccelerometerY()/1200f,-Gdx.input.getAccelerometerX()/1200f, true);
         // aplica a forca, porem ainda em teste
     }
 

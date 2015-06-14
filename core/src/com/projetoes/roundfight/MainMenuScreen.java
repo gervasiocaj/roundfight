@@ -36,19 +36,23 @@ public class MainMenuScreen extends ScreenAdapter {
         super.show();
         stage = new Stage();
 
-        Label.LabelStyle labelStyle = new Label.LabelStyle();
-        labelStyle.font = Assets.font_large;
+        // configuracao da fonte
+        Label.LabelStyle labelStyle = new Label.LabelStyle(); // estilo do titulo
+        labelStyle.font = Assets.font_large; // fonte grande que foi gerada
+        textButtonStyle = new TextButton.TextButtonStyle(); // estilo dos botoes
+        textButtonStyle.font = Assets.font_medium; // fonte media que foi gerada
+
+        // titulo
         Label labelTitle = new Label("RoundFight", labelStyle);
         labelTitle.setAlignment(Align.center);
 
-        textButtonStyle = new TextButton.TextButtonStyle();
-        textButtonStyle.font = Assets.font_medium;
-
+        // botoes
+        // --------------------------
         buttonExit = new TextButton("Exit", textButtonStyle);
         buttonExit.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                Gdx.app.exit();
+                Gdx.app.exit(); // acao do botao
             }
         });
 
@@ -56,19 +60,23 @@ public class MainMenuScreen extends ScreenAdapter {
         buttonStart.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                game.setScreen(new GameStart(game));
+                game.setScreen(new GameStart(game)); // acao do botao (ir para uma nova tela de GameStart)
             }
         });
+        // ---------------------------
 
+        // disposicao dos elementos na tela 
         table = new Table();
         table.setFillParent(true);
         table.align(Align.center);
-        stage.addActor(table);
-        Gdx.input.setInputProcessor(stage);
         table.defaults().size(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 6);
 
-        table.add(labelTitle).row();
+        // row significa nova linha, mesma coisa de table.add(labelTitle); table.row(); 
+        table.add(labelTitle).row(); 
         table.add(buttonStart).row();
         table.add(buttonExit).row();
+
+        stage.addActor(table); // adiciona no stage
+        Gdx.input.setInputProcessor(stage); // adiciona esse stage ao processamento padrao do jogo
     }
 }

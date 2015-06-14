@@ -40,13 +40,17 @@ public class Assets {
 
     public static Body createBall(World world) {
         BodyDef bodyDef = new BodyDef();
-        bodyDef.type = BodyDef.BodyType.DynamicBody;
+        bodyDef.type = BodyDef.BodyType.DynamicBody; 
+        // tipos de corpos:
+            // dinâmicos: se movem e são afetados por forças (mario)
+            // estáticos: não se movem e não são afetados por forças (canos do mario)
+            // cinemáticos: se movem, mas não são afetados por forças (plataformas do mario) 
         bodyDef.position.set(0, 0);
 
         CircleShape shape = new CircleShape();
-        shape.setRadius(.025f); // tamanho padrao da bola de gude/bila/chimbra
+        shape.setRadius(.025f); // tamanho padrao (25mm) da bola de gude/bila/chimbra
 
-        FixtureDef fixtureDef = new FixtureDef();
+        FixtureDef fixtureDef = new FixtureDef(); // propriedades físicas desse corpo (atrito, forma, densidade...)
         fixtureDef.shape = shape;
         fixtureDef.density = 2.7f; // http://www.engineeringtoolbox.com/density-solids-d_1265.html
         fixtureDef.friction = 0.25f;
