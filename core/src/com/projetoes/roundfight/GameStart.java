@@ -1,6 +1,9 @@
 package com.projetoes.roundfight;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.TextureData;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
@@ -9,6 +12,9 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.utils.Align;
 
 /**
  * Created by Gervasio on 6/6/2015.
@@ -20,13 +26,14 @@ public class GameStart extends ScreenAdapter {
 
     public GameStart(MyGdxGame game) {
         this.game = game;
-        this.stage = new GameStage();
+        this.stage = new GameStage(game);
     }
 
     @Override
     public void render(float delta) {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
         stage.draw();
         stage.act(delta);
     }
@@ -35,11 +42,15 @@ public class GameStart extends ScreenAdapter {
 class GameStage extends Stage {
 
     private final Body ball;
+    private final MyGdxGame game;
+    private final TextureData arena;
     private World world;
     private Box2DDebugRenderer renderer;
     private OrthographicCamera camera;
 
-    public GameStage() {
+    public GameStage(MyGdxGame game) {
+        this.game = game;
+        Gdx.input.setInputProcessor(null); // para sobrescrever os ClickListeners da classe MainMenuScreen
         world = new World(new Vector2(0, 0), true);
         renderer = new Box2DDebugRenderer();
         //camera = new OrthographicCamera(Gdx.graphics.getWidth()/1100f, Gdx.graphics.getHeight()/1100f);
@@ -48,7 +59,8 @@ class GameStage extends Stage {
         // não lembro exatamente como cheguei a esta fórmula, mas deve funcionar para todas as resoluções de tela
         camera = new OrthographicCamera(1, Float.valueOf(Gdx.graphics.getHeight()) / Float.valueOf(Gdx.graphics.getWidth()));
         ball = Assets.createBall(world); // cria uma nova bola neste mundo
-    }
+        arena = Assets.background.getTextureData();
+     }
 
     @Override
     public void act(float delta) {
@@ -61,6 +73,22 @@ class GameStage extends Stage {
     @Override
     public void draw() {
         super.draw();
+
+        float lowerX = Gdx.graphics.getWidth()/2f - Assets.background.getWidth()/2f;
+        float lowerY = Gdx.graphics.getHeight()/2f - Assets.background.getHeight()/2f;
+
+        game.batch.begin();
+        game.batch.draw(Assets.background, lowerX, lowerY);
+        game.batch.end();
+
+
+        System.out.println(camera.position.toString());
+        System.out.println(camera.viewportWidth + " " + camera.viewportHeight);
+        System.out.println("bola " + ball.getPosition().toString());
+
+        if ((ball.getPosition().x > lowerX/camera.viewportWidth )) //&& ball.getPosition().x < lowerX + Assets.background.getWidth() && ball.getPosition().y > lowerY && ball.getPosition().y < lowerY + Assets.background.getHeight()))
+            game.setScreen(new MainMenuScreen(game));
+
         renderer.render(world, camera.combined);
     }
 

@@ -72,7 +72,7 @@ public class MainMenuScreen extends ScreenAdapter {
         table.defaults().size(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 6);
 
         // row significa nova linha, mesma coisa de table.add(labelTitle); table.row(); 
-        table.add(labelTitle).row(); 
+        table.add(labelTitle).row();
         table.add(buttonStart).row();
         table.add(buttonExit).row();
 

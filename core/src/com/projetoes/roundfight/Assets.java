@@ -14,11 +14,8 @@ import com.badlogic.gdx.physics.box2d.World;
  * Created by Gervasio on 6/6/2015.
  */
 public class Assets {
-    public static Texture items;
-    public static TextureRegion mainMenu;
-    public static TextureRegion pauseMenu;
-    public static TextureRegion ready;
-    public static TextureRegion gameOver;
+    public static Texture items, background;
+    public static TextureRegion mainMenu, pauseMenu, ready, gameOver;
     public static BitmapFont font_small, font_medium, font_large;
 
     public static Texture loadTexture (String file) {
@@ -29,6 +26,8 @@ public class Assets {
         font_small = new BitmapFont(Gdx.files.internal("data/rounded_elegance_small.fnt"));
         font_medium = new BitmapFont(Gdx.files.internal("data/rounded_elegance.fnt"));
         font_large = new BitmapFont(Gdx.files.internal("data/rounded_elegance_large.fnt"));
+
+        background = new Texture(Gdx.files.internal("data/background.jpg"));
         /*items = loadTexture("data/items.png"); // TODO xxx
 
         mainMenu = new TextureRegion(items, 0, 224, 300, 110);
