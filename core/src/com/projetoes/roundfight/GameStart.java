@@ -11,9 +11,12 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 
 /**
@@ -41,15 +44,21 @@ public class GameStart extends ScreenAdapter {
 
 class GameStage extends Stage {
 
-    private final Body ball;
-    private final MyGdxGame game;
-    private final TextureData arena;
+    private Body ball;
+    private MyGdxGame game;
+    private TextureData arena;
     private World world;
     private Box2DDebugRenderer renderer;
     private OrthographicCamera camera;
+    private TextButton buttonPause;
+    private boolean gamePaused;
+    private Table table;
 
     public GameStage(MyGdxGame game) {
         this.game = game;
+
+        gamePaused = false;
+
         Gdx.input.setInputProcessor(null); // para sobrescrever os ClickListeners da classe MainMenuScreen
         world = new World(new Vector2(0, 0), true);
         renderer = new Box2DDebugRenderer();
@@ -60,6 +69,36 @@ class GameStage extends Stage {
         camera = new OrthographicCamera(1, Float.valueOf(Gdx.graphics.getHeight()) / Float.valueOf(Gdx.graphics.getWidth()));
         ball = Assets.createBall(world); // cria uma nova bola neste mundo
         arena = Assets.background.getTextureData();
+
+        TextButton.TextButtonStyle pauseButtonStyle = new TextButton.TextButtonStyle();
+        pauseButtonStyle.font = Assets.font_small;
+
+        buttonPause = new TextButton("||", pauseButtonStyle);
+        buttonPause.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                if (gamePaused) {
+                    gamePaused = false;
+                    buttonPause.setText(">");
+                    arena.notify();
+                } else {
+                    gamePaused = true;
+                    buttonPause.setText("||");
+
+                    try {
+                        arena.wait();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+
+
+                    }
+                }
+            }
+        });
+
+        table = new Table();
+        table.align(Align.bottomRight).row();
+        table.add(buttonPause);
      }
 
     @Override
@@ -80,7 +119,6 @@ class GameStage extends Stage {
         game.batch.begin();
         game.batch.draw(Assets.background, lowerX, lowerY);
         game.batch.end();
-
 
         System.out.println(camera.position.toString());
         System.out.println(camera.viewportWidth + " " + camera.viewportHeight);
