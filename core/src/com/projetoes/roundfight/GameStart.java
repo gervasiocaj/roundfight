@@ -44,6 +44,7 @@ public class GameStart extends ScreenAdapter {
 
 class GameStage extends Stage {
 
+    private final Stage stage;
     private Body ball;
     private MyGdxGame game;
     private TextureData arena;
@@ -51,13 +52,11 @@ class GameStage extends Stage {
     private Box2DDebugRenderer renderer;
     private OrthographicCamera camera;
     private TextButton buttonPause;
-    private boolean gamePaused;
+    private boolean gamePaused = false;
     private Table table;
 
-    public GameStage(MyGdxGame game) {
+    public GameStage(final MyGdxGame game) {
         this.game = game;
-
-        gamePaused = false;
 
         Gdx.input.setInputProcessor(null); // para sobrescrever os ClickListeners da classe MainMenuScreen
         world = new World(new Vector2(0, 0), true);
@@ -77,32 +76,24 @@ class GameStage extends Stage {
         buttonPause.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if (gamePaused) {
-                    gamePaused = false;
-                    buttonPause.setText(">");
-                    arena.notify();
-                } else {
-                    gamePaused = true;
-                    buttonPause.setText("||");
-
-                    try {
-                        arena.wait();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-
-
-                    }
-                }
+                gamePaused = !gamePaused;
+                buttonPause.setText(gamePaused ? ">" : "||");
             }
         });
 
         table = new Table();
-        table.align(Align.bottomRight).row();
+        table.setFillParent(true);
+        table.defaults().size(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 6);
+        table.align(Align.topRight).row();
         table.add(buttonPause);
+        stage = new Stage();
+        stage.addActor(table);
+        Gdx.input.setInputProcessor(stage);
      }
 
     @Override
     public void act(float delta) {
+        if (gamePaused) return;
         super.act(delta);
         world.step(1 / 45f, 6, 2); // com que frequência a tela é atualizada, 45 frames por segundo. Esses valores 6 e 2 são "padroes" para android.
         ball.applyForceToCenter(Gdx.input.getAccelerometerY()/1200f,-Gdx.input.getAccelerometerX()/1200f, true);
@@ -120,13 +111,13 @@ class GameStage extends Stage {
         game.batch.draw(Assets.background, lowerX, lowerY);
         game.batch.end();
 
-        System.out.println(camera.position.toString());
-        System.out.println(camera.viewportWidth + " " + camera.viewportHeight);
-        System.out.println("bola " + ball.getPosition().toString());
+        //System.out.println(camera.position.toString());
+        //System.out.println(camera.viewportWidth + " " + camera.viewportHeight);
+        //System.out.println("bola " + ball.getPosition().toString());
 
         if ((ball.getPosition().x > lowerX/camera.viewportWidth )) //&& ball.getPosition().x < lowerX + Assets.background.getWidth() && ball.getPosition().y > lowerY && ball.getPosition().y < lowerY + Assets.background.getHeight()))
             game.setScreen(new MainMenuScreen(game));
-
+        stage.draw();
         renderer.render(world, camera.combined);
     }
 
