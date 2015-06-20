@@ -65,7 +65,7 @@ class GameStage extends Stage {
 
         // o mundo é infinito para todos os lados, e a câmera está a uma altura x do ponto inicial
         // não lembro exatamente como cheguei a esta fórmula, mas deve funcionar para todas as resoluções de tela
-        camera = new OrthographicCamera(1, Float.valueOf(Gdx.graphics.getHeight()) / Float.valueOf(Gdx.graphics.getWidth()));
+        camera = new OrthographicCamera(1.3f, 1.3f * Float.valueOf(Gdx.graphics.getHeight()) / Float.valueOf(Gdx.graphics.getWidth()));
         ball = Assets.createBall(world); // cria uma nova bola neste mundo
         arena = Assets.background.getTextureData();
 
