@@ -7,5 +7,3 @@ Integrantes:
   * Carla Morgana
   * Gervásio Costa
   * Renato Ely
-  * Rodrigo Pinto
-  
