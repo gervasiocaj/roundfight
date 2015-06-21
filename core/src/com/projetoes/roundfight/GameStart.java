@@ -1,6 +1,7 @@
 package com.projetoes.roundfight;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.TextureData;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -44,16 +45,15 @@ public class GameStart extends ScreenAdapter {
 
 class GameStage extends Stage {
 
+    private Table table;
     private final Stage stage;
-    private Body ball;
+    private Body ball, arena;
     private MyGdxGame game;
-    private TextureData arena;
     private World world;
+    private TextButton buttonPause;
     private Box2DDebugRenderer renderer;
     private OrthographicCamera camera;
-    private TextButton buttonPause;
     private boolean gamePaused = false;
-    private Table table;
 
     public GameStage(final MyGdxGame game) {
         this.game = game;
@@ -96,8 +96,7 @@ class GameStage extends Stage {
         if (gamePaused) return;
         super.act(delta);
         world.step(1 / 45f, 6, 2); // com que frequência a tela é atualizada, 45 frames por segundo. Esses valores 6 e 2 são "padroes" para android.
-        ball.applyForceToCenter(Gdx.input.getAccelerometerY()/1200f,-Gdx.input.getAccelerometerX()/1200f, true);
-        // aplica a forca, porem ainda em teste
+        ball.applyForceToCenter(Gdx.input.getAccelerometerY()/1200f,-Gdx.input.getAccelerometerX()/1200f, true); // aplica a força à bola
     }
 
     @Override
@@ -116,7 +115,11 @@ class GameStage extends Stage {
         //System.out.println("bola " + ball.getPosition().toString());
 
         if ((ball.getPosition().x > lowerX/camera.viewportWidth )) //&& ball.getPosition().x < lowerX + Assets.background.getWidth() && ball.getPosition().y > lowerY && ball.getPosition().y < lowerY + Assets.background.getHeight()))
-            game.setScreen(new MainMenuScreen(game));
+            game.setScreen(new MainMenuScreen(game)); // TODO game over
+
+        if (Gdx.input.isKeyPressed(Input.Keys.BACK))
+            game.setScreen(new MainMenuScreen(game)); // TODO mostrar tela de confirmação
+
         stage.draw();
         renderer.render(world, camera.combined);
     }

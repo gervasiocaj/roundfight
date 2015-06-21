@@ -21,6 +21,7 @@ public class MainMenuScreen extends ScreenAdapter {
 
     public MainMenuScreen(MyGdxGame game) {
         this.game = game;
+        Gdx.input.setCatchBackKey(true);
     }
 
     @Override
