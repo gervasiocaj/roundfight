@@ -3,8 +3,6 @@ package com.projetoes.roundfight;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.TextureData;
-import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
@@ -14,7 +12,6 @@ import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
@@ -47,13 +44,15 @@ class GameStage extends Stage {
 
     private Table table;
     private final Stage stage;
-    private Body ball, arena;
+    private Body ball, ballpc;
+    private TextureData arena;
     private MyGdxGame game;
     private World world;
     private TextButton buttonPause;
     private Box2DDebugRenderer renderer;
     private OrthographicCamera camera;
     private boolean gamePaused = false;
+    private Vector2 positionball, forceballpc;
 
     public GameStage(final MyGdxGame game) {
         this.game = game;
@@ -66,7 +65,8 @@ class GameStage extends Stage {
         // o mundo é infinito para todos os lados, e a câmera está a uma altura x do ponto inicial
         // não lembro exatamente como cheguei a esta fórmula, mas deve funcionar para todas as resoluções de tela
         camera = new OrthographicCamera(1.3f, 1.3f * Float.valueOf(Gdx.graphics.getHeight()) / Float.valueOf(Gdx.graphics.getWidth()));
-        ball = Assets.createBall(world); // cria uma nova bola neste mundo
+        ball = Assets.createBall(world,0,0); // cria uma nova bola neste mundo
+        ballpc = Assets.createBall(world,0.1f,0.1f);
         arena = Assets.background.getTextureData();
 
         TextButton.TextButtonStyle pauseButtonStyle = new TextButton.TextButtonStyle();
@@ -96,7 +96,13 @@ class GameStage extends Stage {
         if (gamePaused) return;
         super.act(delta);
         world.step(1 / 45f, 6, 2); // com que frequência a tela é atualizada, 45 frames por segundo. Esses valores 6 e 2 são "padroes" para android.
-        ball.applyForceToCenter(Gdx.input.getAccelerometerY()/1200f,-Gdx.input.getAccelerometerX()/1200f, true); // aplica a força à bola
+        ball.applyForceToCenter(Gdx.input.getAccelerometerY() / 1200f, -Gdx.input.getAccelerometerX() / 1200f, true); // aplica a força à bola
+        positionball = ball.getPosition();
+        forceballpc = ballpc.getPosition();
+        forceballpc.set(positionball.x - forceballpc.x, positionball.y - forceballpc.y);
+        
+        ballpc.applyForceToCenter(forceballpc.x/100f, forceballpc.y/100f, true);
+
     }
 
     @Override

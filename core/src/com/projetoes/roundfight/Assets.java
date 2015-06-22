@@ -37,14 +37,14 @@ public class Assets {
         */
     }
 
-    public static Body createBall(World world) {
+    public static Body createBall(World world, float x, float y) {
         BodyDef bodyDef = new BodyDef();
         bodyDef.type = BodyDef.BodyType.DynamicBody; 
         // tipos de corpos:
             // dinâmicos: se movem e são afetados por forças (mario)
             // estáticos: não se movem e não são afetados por forças (canos do mario)
             // cinemáticos: se movem, mas não são afetados por forças (plataformas do mario) 
-        bodyDef.position.set(0, 0);
+        bodyDef.position.set(x, y);
 
         CircleShape shape = new CircleShape();
         shape.setRadius(.025f); // tamanho padrao (25mm) da bola de gude/bila/chimbra
