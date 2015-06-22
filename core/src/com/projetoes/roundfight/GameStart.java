@@ -52,7 +52,7 @@ class GameStage extends Stage {
     private Box2DDebugRenderer renderer;
     private OrthographicCamera camera;
     private boolean gamePaused = false;
-    private Vector2 positionball, forceballpc;
+    private Vector2 positionball, forceballpc, velocidadepc;
 
     public GameStage(final MyGdxGame game) {
         this.game = game;
@@ -100,8 +100,10 @@ class GameStage extends Stage {
         positionball = ball.getPosition();
         forceballpc = ballpc.getPosition();
         forceballpc.set(positionball.x - forceballpc.x, positionball.y - forceballpc.y);
-        
-        ballpc.applyForceToCenter(forceballpc.x/100f, forceballpc.y/100f, true);
+        velocidadepc = ballpc.getLinearVelocity();
+        velocidadepc.rotate(2 * velocidadepc.angle(forceballpc));
+        forceballpc.add(velocidadepc);
+        ballpc.applyForceToCenter(forceballpc.x/150f, forceballpc.y/150f, true);
 
     }
 
