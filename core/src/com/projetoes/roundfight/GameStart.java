@@ -101,7 +101,7 @@ class GameStage extends Stage {
         forceballpc = ballpc.getPosition();
         forceballpc.set(positionball.x - forceballpc.x, positionball.y - forceballpc.y);
         velocidadepc = ballpc.getLinearVelocity();
-        velocidadepc.rotate(2 * velocidadepc.angle(forceballpc));
+        velocidadepc.rotate(2f * velocidadepc.angle(forceballpc));
         forceballpc.add(velocidadepc);
         ballpc.applyForceToCenter(forceballpc.x/150f, forceballpc.y/150f, true);
 
