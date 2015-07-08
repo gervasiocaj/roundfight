@@ -34,6 +34,12 @@ public class GameStart extends ScreenAdapter {
     }
 
     @Override
+    public void pause() {
+        super.pause();
+        if (!stage.gamePaused) stage.pausar();
+    }
+
+    @Override
     public void render(float delta) {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -76,8 +82,7 @@ class GameStage extends Stage {
         buttonPause.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                gamePaused = !gamePaused;
-                buttonPause.setText(gamePaused ? ">" : "||");
+                pausar();
             }
         });
 
@@ -90,6 +95,11 @@ class GameStage extends Stage {
         stage.addActor(table);
         Gdx.input.setInputProcessor(stage);
      }
+
+    void pausar() {
+        gamePaused = !gamePaused;
+        buttonPause.setText(gamePaused ? ">" : "||");
+    }
 
     @Override
     public void act(float delta) {
