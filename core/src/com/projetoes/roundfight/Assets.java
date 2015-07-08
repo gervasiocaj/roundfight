@@ -47,13 +47,15 @@ public class Assets {
         bodyDef.position.set(x, y);
 
         CircleShape shape = new CircleShape();
+
         shape.setRadius(.025f); // tamanho padrao (25mm) da bola de gude/bila/chimbra
 
         FixtureDef fixtureDef = new FixtureDef(); // propriedades físicas desse corpo (atrito, forma, densidade...)
         fixtureDef.shape = shape;
         fixtureDef.density = 2.7f; // http://www.engineeringtoolbox.com/density-solids-d_1265.html
-        fixtureDef.friction = 0.25f;
+        fixtureDef.friction = 0.7f;
         fixtureDef.restitution = .75f;
+
 
         Body body = world.createBody(bodyDef);
         body.createFixture(fixtureDef);
