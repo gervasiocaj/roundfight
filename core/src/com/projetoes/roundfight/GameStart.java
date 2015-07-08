@@ -59,7 +59,7 @@ class GameStage extends Stage {
     private TextButton buttonPause, buttonDash;
     private ShapeRenderer renderer;
     private OrthographicCamera camera;
-    private boolean gamePaused = false;
+    boolean gamePaused = false;
     private Vector2 positionball, forceballpc, velocidadepc;
 
     public GameStage(final MyGdxGame game) {
