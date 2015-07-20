@@ -13,7 +13,7 @@ public class MyGdxGame extends Game {
 		batch = new SpriteBatch();
 		Settings.load();
 		Assets.load();
-		main = new MainMenuScreen(this);
+		main = new MainMenuScreen(this, false);
 		setScreen(main);
 	}
 

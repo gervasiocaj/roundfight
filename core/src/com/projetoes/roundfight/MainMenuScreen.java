@@ -20,9 +20,11 @@ public class MainMenuScreen extends ScreenAdapter {
     private TextButton.TextButtonStyle textButtonStyle;
     private TextButton buttonStart, buttonExit, buttonOptions;
     private TextButton buttonSound, buttonVibrate, buttonHelp, buttonBack;
-
-    public MainMenuScreen(MyGdxGame game) {
+    public boolean vibrate = false;
+    protected boolean sound = false;
+    public MainMenuScreen(MyGdxGame game, boolean vibrate) {
         this.game = game;
+        this.vibrate = vibrate;
         Gdx.input.setCatchBackKey(true);
     }
 
@@ -55,6 +57,7 @@ public class MainMenuScreen extends ScreenAdapter {
         buttonExit.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                if(vibrate){ Gdx.input.vibrate(100);}
                 Gdx.app.exit(); // acao do botao
             }
         });
@@ -63,7 +66,8 @@ public class MainMenuScreen extends ScreenAdapter {
         buttonStart.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                game.setScreen(new GameStart(game)); // acao do botao (ir para uma nova tela de GameStart)
+                if(vibrate){ Gdx.input.vibrate(100);}
+                game.setScreen(new GameStart(game, vibrate)); // acao do botao (ir para uma nova tela de GameStart)
             }
         });
 
@@ -71,6 +75,7 @@ public class MainMenuScreen extends ScreenAdapter {
         buttonOptions.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                if(vibrate){ Gdx.input.vibrate(100);}
                 show2();// acao do botao (ir para uma nova tela de GameStart)
             }
         });
@@ -94,6 +99,7 @@ public class MainMenuScreen extends ScreenAdapter {
     }
 
     public void show2() {
+
         super.show();
         stage = new Stage();
 
@@ -109,19 +115,31 @@ public class MainMenuScreen extends ScreenAdapter {
 
         // botoes
         // --------------------------
-        buttonSound = new TextButton("Sound", textButtonStyle);
+        if(sound){
+            buttonSound = new TextButton("Sound On", textButtonStyle);
+        } else{
+            buttonSound = new TextButton("Sound Off", textButtonStyle);
+        }
         buttonSound.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                 // acao do botao
+                if(vibrate){ Gdx.input.vibrate(100);}
+                sound = !sound;
+                show2();// acao do botao
             }
         });
 
-        buttonVibrate = new TextButton("Vibrate", textButtonStyle);
+        if(vibrate){
+            buttonVibrate = new TextButton("Vibrate On", textButtonStyle);
+        }else{
+            buttonVibrate = new TextButton("Vibrate Off", textButtonStyle);
+        }
         buttonVibrate.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                 // acao do botao (ir para uma nova tela de GameStart)
+                vibrate = !vibrate;
+                if(vibrate){ Gdx.input.vibrate(100);}
+                show2();
             }
         });
 
@@ -129,7 +147,7 @@ public class MainMenuScreen extends ScreenAdapter {
         buttonHelp.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-              // acao do botao (ir para uma nova tela de GameStart)
+                if(vibrate){ Gdx.input.vibrate(100);} // acao do botao (ir para uma nova tela de GameStart)
             }
         });
 
@@ -137,7 +155,8 @@ public class MainMenuScreen extends ScreenAdapter {
         buttonBack.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-               show(); // acao do botao (ir para uma nova tela de GameStart)
+                if(vibrate){ Gdx.input.vibrate(100);}
+                show(); // acao do botao (ir para uma nova tela de GameStart)
             }
         });
         // ---------------------------

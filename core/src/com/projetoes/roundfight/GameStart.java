@@ -26,10 +26,12 @@ public class GameStart extends ScreenAdapter {
 
     private final MyGdxGame game;
     private final GameStage stage;
+    protected boolean vibrate;
 
-    public GameStart(MyGdxGame game) {
+    public GameStart(MyGdxGame game, boolean vibrate) {
         this.game = game;
-        this.stage = new GameStage(game);
+        this.vibrate = vibrate;
+        this.stage = new GameStage(game, vibrate);
     }
 
     @Override
@@ -60,10 +62,13 @@ class GameStage extends Stage {
     private ShapeRenderer renderer;
     private OrthographicCamera camera;
     boolean gamePaused = false;
+    boolean vibrate = false;
     private Vector2 positionball, forceballpc, velocidadepc;
 
-    public GameStage(final MyGdxGame game) {
+
+    public GameStage(final MyGdxGame game, final boolean vibrate) {
         this.game = game;
+        this.vibrate = vibrate;
 
         Gdx.input.setInputProcessor(null); // para sobrescrever os ClickListeners da classe MainMenuScreen
         world = new World(new Vector2(0, 0), true);
@@ -85,6 +90,7 @@ class GameStage extends Stage {
         buttonPause.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                if(vibrate){ Gdx.input.vibrate(100);}
                 pausar();
             }
         });
@@ -93,6 +99,7 @@ class GameStage extends Stage {
         buttonDash.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                if(vibrate){ Gdx.input.vibrate(100);}
                 dash(ball);
             }
         });
@@ -156,10 +163,10 @@ class GameStage extends Stage {
 
         float lowerX = -0.5f, lowerY = -0.3f;
         if ((ball.getPosition().x > -lowerX  || ball.getPosition().x < lowerX || ball.getPosition().y > -lowerY || ball.getPosition().y < lowerY))
-            game.setScreen(new MainMenuScreen(game)); // TODO game over
+            game.setScreen(new MainMenuScreen(game, vibrate)); // TODO game over
 
         if (Gdx.input.isKeyPressed(Input.Keys.BACK))
-            game.setScreen(new MainMenuScreen(game)); // TODO mostrar tela de confirmação
+            game.setScreen(new MainMenuScreen(game, vibrate)); // TODO mostrar tela de confirmação
     }
 
     public void dash(Body obj){
