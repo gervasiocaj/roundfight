@@ -174,3 +174,4 @@ class GameStage extends Stage {
         renderer.dispose();
     }
 }
+
