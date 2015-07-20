@@ -27,6 +27,7 @@ public class GameStart extends ScreenAdapter {
     private final MyGdxGame game;
     private final GameStage stage;
     protected boolean vibrate;
+    protected  boolean sound;
 
     public GameStart(MyGdxGame game, boolean vibrate) {
         this.game = game;
