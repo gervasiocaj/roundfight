@@ -3,6 +3,7 @@ package com.projetoes.roundfight;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
+
 public class MyGdxGame extends Game {
 	public SpriteBatch batch;
 	private static MainMenuScreen main;
@@ -12,7 +13,7 @@ public class MyGdxGame extends Game {
 		batch = new SpriteBatch();
 		Settings.load();
 		Assets.load();
-		main = new MainMenuScreen(this);
+		main = new MainMenuScreen(this, false);
 		setScreen(main);
 	}
 
@@ -24,4 +25,6 @@ public class MyGdxGame extends Game {
 	public static MainMenuScreen getMainMenuScreen() {
 		return main;
 	}
+
+
 }
