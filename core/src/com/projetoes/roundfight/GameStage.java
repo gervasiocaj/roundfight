@@ -132,19 +132,15 @@ public class GameStage extends Stage {
 
         stage.draw();
 
-        // configuracao da fonte da mensagem
-        Label.LabelStyle labelStyle = new Label.LabelStyle(); // estilo da mensagem
-        labelStyle.font = Assets.font_small; // fonte pequena que foi gerada
-
         float lowerX = -0.5f, lowerY = -0.3f;
         if ((ball.getPosition().x > -lowerX  || ball.getPosition().x < lowerX || ball.getPosition().y > -lowerY || ball.getPosition().y < lowerY)) {
             // neste caso, você perdeu.
-            mensagem("Opa! Voce perdeu!" + "\n Tente novamente.");
+            mensagem("Try again." + "\n You lost! \n");
         }
 
         if ((ballpc.getPosition().x > -lowerX  || ballpc.getPosition().x < lowerX || ballpc.getPosition().y > -lowerY || ballpc.getPosition().y < lowerY)) {
             // neste caso, você ganhou.
-            mensagem("Parabéns!" + "\n Voce ganhou!");
+            mensagem("Very good!" + "\n You won! \n");
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.BACK))
@@ -153,23 +149,24 @@ public class GameStage extends Stage {
 
     public void mensagem(String msg) {
         gamePaused = true;
+
         // configuracao da fonte da mensagem
         Label.LabelStyle labelStyle = new Label.LabelStyle(); // estilo da mensagem
-        labelStyle.font = Assets.font_small; // fonte pequena que foi gerada
+        labelStyle.font = Assets.font_small; // fonte pequena
         textButtonStyle = new TextButton.TextButtonStyle(); // estilo dos botoes
-        textButtonStyle.font = Assets.font_small; // fonte media que foi gerada
+        textButtonStyle.font = Assets.font_small; // fonte pequena
 
         Label labelTitle = new Label(msg, labelStyle);
         labelTitle.setAlignment(Align.center);
 
-        buttonBack = new TextButton("<", textButtonStyle);
+        buttonBack = new TextButton("Back", textButtonStyle);
         buttonBack.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 if (vibrate) {
                     Gdx.input.vibrate(100);
                 }
-                game.setScreen(new MainMenuScreen(game, vibrate)); // TODO game over // acao do botao (volta ao Menu principal)
+                game.setScreen(new MainMenuScreen(game, vibrate)); // acao do botao (ir para o Menu principal)
             }
         });
 
@@ -195,9 +192,8 @@ public class GameStage extends Stage {
         table.row();
         table.add(buttonBack).row();
         table.row();
-        table.add(buttonNewGame).row();
+        table.add(buttonNewGame);
 
-        // tem que ver aqui como dar pause no movimento das bolinhas
         stage.addActor(table); // adiciona no stage
         Gdx.input.setInputProcessor(stage); // adiciona esse stage ao processamento padrao do jogo
 
