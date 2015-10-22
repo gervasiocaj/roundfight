@@ -36,13 +36,14 @@ public class GameStage extends Stage {
     private OrthographicCamera camera;
     boolean gamePaused = false;
     boolean vibrate = false;
-    private Vector2 positionball, forceballpc, velocidadepc;
+    private Vector2 positionball, forceballpc, velocidadepc, initialposition;
     private TextButton.TextButtonStyle textButtonStyle;
     private LinkedList<Body> bolasInimigas;
 
-    public GameStage(final MyGdxGame game, final boolean vibrate) {
+    public GameStage(final MyGdxGame game, final boolean vibrate, Vector2 initialposition) {
         this.game = game;
         this.vibrate = vibrate;
+        this.initialposition = initialposition;
 
         Gdx.input.setInputProcessor(null); // para sobrescrever os ClickListeners da classe MainMenuScreen
         world = new World(new Vector2(0, 0), true);
@@ -103,8 +104,8 @@ public class GameStage extends Stage {
     }
 
     void aplicarForcasBolas() {
-        float inclinacaoX = Gdx.input.getAccelerometerY() / 1200f;
-        float inclinacaoY = -Gdx.input.getAccelerometerX() / 1200f;
+        float inclinacaoX = (Gdx.input.getAccelerometerY() - initialposition.y) / 1200f;
+        float inclinacaoY = (-Gdx.input.getAccelerometerX() + initialposition.x) / 1200f;
         ball.applyForceToCenter(inclinacaoX, inclinacaoY, true); // aplica a força à bola
 
         for (Body bola : bolasInimigas)
@@ -212,7 +213,7 @@ public class GameStage extends Stage {
                 if (vibrate) {
                     Gdx.input.vibrate(100);
                 }
-                game.setScreen(new GameStart(game, vibrate)); // acao do botao (ir para uma nova tela de GameStart)
+                game.setScreen(new GameStart(game, vibrate, initialposition)); // acao do botao (ir para uma nova tela de GameStart)
             }
         });
 

@@ -7,6 +7,7 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
@@ -72,7 +73,10 @@ public class MainMenuScreen extends ScreenAdapter {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 if(vibrate){ Gdx.input.vibrate(100);}
-                game.setScreen(new GameStart(game, vibrate)); // acao do botao (ir para uma nova tela de GameStart)
+                float positionX = Gdx.input.getAccelerometerX();
+                float positionY = Gdx.input.getAccelerometerY();
+                Vector2 position = new Vector2(positionX,positionY);
+                game.setScreen(new GameStart(game, vibrate,position)); // acao do botao (ir para uma nova tela de GameStart)
             }
         });
 
