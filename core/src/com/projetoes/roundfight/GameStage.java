@@ -40,7 +40,6 @@ public class GameStage extends Stage {
     private TextButton.TextButtonStyle textButtonStyle;
     private LinkedList<Body> bolasInimigas;
     private int estagioPontuacao;
-    private boolean ganhou = true;
 
     public GameStage(final MyGdxGame game, final boolean vibrate, int estagioPontuacao) {
         this.game = game;
@@ -140,7 +139,7 @@ public class GameStage extends Stage {
         float lowerX = -0.5f, lowerY = -0.3f;
         if ((ball.getPosition().x > -lowerX || ball.getPosition().x < lowerX || ball.getPosition().y > -lowerY || ball.getPosition().y < lowerY))
             //ganhou = false;
-            mensagem("Try again." + "\n You lost! \n"); // neste caso, você perdeu.
+            mensagem("Try again." + "\n You lost! \n", false); // neste caso, você perdeu.
 
         boolean todosInimigosDerrotados = true;
         for (Body bola : bolasInimigas)
@@ -149,7 +148,7 @@ public class GameStage extends Stage {
             }
         if (todosInimigosDerrotados) {
             //ganhou = true;
-            mensagem("Very good!" + "\n You won! \n"); // neste caso, você ganhou.
+            mensagem("Very good!" + "\n You won! \n", true); // neste caso, você ganhou.
         }
     }
 
@@ -201,7 +200,7 @@ public class GameStage extends Stage {
             game.setScreen(new MainMenuScreen(game, vibrate)); // TODO mostrar tela de confirmação
     }
 
-    public void mensagem(String msg) {
+    public void mensagem(String msg, boolean venceu) {
         gamePaused = true;
 
         // configuracao da fonte da mensagem
@@ -231,7 +230,7 @@ public class GameStage extends Stage {
                 if (vibrate) {
                     Gdx.input.vibrate(100);
                 }
-                game.setScreen(new GameStart(game, vibrate, 0)); // acao do botao (iniciar um novo GameStart, com pontuação 0)
+                game.setScreen(new GameStart(game, vibrate, 1)); // acao do botao (iniciar um novo GameStart, com pontuação 1)
             }
         });
 
@@ -252,16 +251,16 @@ public class GameStage extends Stage {
         table.align(Align.center);
         table.defaults().size(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 6);
 
-        // adicionando os botões na tela
-        if(ganhou) {
-            table.add(labelTitle).row();
-            table.row();
+        table.add(labelTitle).row();
+        table.row();
+
+        if(venceu) {
+            // adicionando os botões na tela de vitoria
             table.add(buttonBackMenu).row();
             table.row();
             table.add(buttonNextState);
         } else {
-            table.add(labelTitle).row();
-            table.row();
+            // adicionando os botões na tela de derrota
             table.add(buttonBackMenu).row();
             table.row();
             table.add(buttonNewGame);
