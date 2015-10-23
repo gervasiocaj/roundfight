@@ -121,11 +121,11 @@ public class GameStage extends Stage {
         ball.applyForceToCenter(inclinacaoX, inclinacaoY, true); // aplica a força à bola
 
         for (Body bola : bolasInimigas)
-            setNovoAlvoIA(ball); // dá um novo alvo à bola inimiga
+            setNovoAlvoIA(ball, bola); // dá um novo alvo à bola inimiga
 
     }
 
-    void setNovoAlvoIA(Body bola) {
+    void setNovoAlvoIA(Body bola, Body bolapc) {
         positionball = ball.getPosition();
         forceballpc = bola.getPosition();
         forceballpc.set(positionball.x - forceballpc.x, positionball.y - forceballpc.y);
@@ -133,7 +133,7 @@ public class GameStage extends Stage {
         velocidadepc.rotate(2f * velocidadepc.angle(forceballpc));
         forceballpc.add(velocidadepc);
 
-        bola.applyForceToCenter(forceballpc.x / 150f, forceballpc.y / 150f, true);
+        bolapc.applyForceToCenter(forceballpc.x / 150f, forceballpc.y / 150f, true);
     }
 
     void verificarFimDoJogo() {

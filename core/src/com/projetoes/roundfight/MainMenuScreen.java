@@ -72,11 +72,10 @@ public class MainMenuScreen extends ScreenAdapter {
         buttonStart.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if(vibrate){ Gdx.input.vibrate(100);}
-                float positionX = Gdx.input.getAccelerometerX();
-                float positionY = Gdx.input.getAccelerometerY();
-                Vector2 position = new Vector2(positionX,positionY);
-                game.setScreen(new GameStart(game, vibrate,position, 1)); // acao do botao (ir para uma nova tela de GameStart)
+                if(vibrate){
+                    Gdx.input.vibrate(100);
+                }
+                game.setScreen(new GameStart(game, vibrate, 1)); // acao do botao (ir para uma nova tela de GameStart)
             }
         });
 
