@@ -76,7 +76,7 @@ public class MainMenuScreen extends ScreenAdapter {
                 float positionX = Gdx.input.getAccelerometerX();
                 float positionY = Gdx.input.getAccelerometerY();
                 Vector2 position = new Vector2(positionX,positionY);
-                game.setScreen(new GameStart(game, vibrate,position)); // acao do botao (ir para uma nova tela de GameStart)
+                game.setScreen(new GameStart(game, vibrate,position, 1)); // acao do botao (ir para uma nova tela de GameStart)
             }
         });
 
