@@ -31,10 +31,10 @@ public class GameStart extends ScreenAdapter {
     protected  boolean sound;
     private int estagio;
 
-    public GameStart(MyGdxGame game, boolean vibrate, Vector2 initialposition, int estagio) {
+    public GameStart(MyGdxGame game, boolean vibrate, int estagio) {
         this.game = game;
         this.vibrate = vibrate;
-        this.stage = new GameStage(game, vibrate, initialposition, estagio);
+        this.stage = new GameStage(game, vibrate, estagio);
     }
 
     @Override

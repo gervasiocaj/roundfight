@@ -36,16 +36,15 @@ public class GameStage extends Stage {
     private OrthographicCamera camera;
     boolean gamePaused = false;
     boolean vibrate = false;
-    private Vector2 positionball, forceballpc, velocidadepc, initialposition;
+    private Vector2 positionball, forceballpc, velocidadepc;
     private TextButton.TextButtonStyle textButtonStyle;
     private LinkedList<Body> bolasInimigas;
     private int estagioPontuacao;
     private boolean ganhou = true;
 
-    public GameStage(final MyGdxGame game, final boolean vibrate, Vector2 initialposition, int estagioPontuacao) {
+    public GameStage(final MyGdxGame game, final boolean vibrate, int estagioPontuacao) {
         this.game = game;
         this.vibrate = vibrate;
-        this.initialposition = initialposition;
         this.estagioPontuacao = estagioPontuacao;
 
         Gdx.input.setInputProcessor(null); // para sobrescrever os ClickListeners da classe MainMenuScreen
@@ -117,8 +116,8 @@ public class GameStage extends Stage {
     }
 
     void aplicarForcasBolas() {
-        float inclinacaoX = (Gdx.input.getAccelerometerY() - initialposition.y) / 1200f;
-        float inclinacaoY = (-Gdx.input.getAccelerometerX() + initialposition.x) / 1200f;
+        float inclinacaoX = Gdx.input.getAccelerometerY() / 1200f;
+        float inclinacaoY = -Gdx.input.getAccelerometerX() / 1200f;
         ball.applyForceToCenter(inclinacaoX, inclinacaoY, true); // aplica a força à bola
 
         for (Body bola : bolasInimigas)
@@ -228,7 +227,7 @@ public class GameStage extends Stage {
                 if (vibrate) {
                     Gdx.input.vibrate(100);
                 }
-                game.setScreen(new GameStart(game, vibrate, initialposition, 0)); // acao do botao (iniciar um novo GameStart, com pontuação 0)
+                game.setScreen(new GameStart(game, vibrate, 0)); // acao do botao (iniciar um novo GameStart, com pontuação 0)
             }
         });
 
@@ -239,7 +238,7 @@ public class GameStage extends Stage {
                 if (vibrate) {
                     Gdx.input.vibrate(100);
                 }
-                game.setScreen(new GameStart(game, vibrate, initialposition, estagioPontuacao+1)); // acao do botao (ir para uma nova tela de GameStart, incrementando em 1 a pontuação)
+                game.setScreen(new GameStart(game, vibrate, estagioPontuacao+1)); // acao do botao (ir para uma nova tela de GameStart, incrementando em 1 a pontuação)
             }
         });
 
