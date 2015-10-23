@@ -138,15 +138,19 @@ public class GameStage extends Stage {
 
     void verificarFimDoJogo() {
         float lowerX = -0.5f, lowerY = -0.3f;
-        if ((ball.getPosition().x > -lowerX  || ball.getPosition().x < lowerX || ball.getPosition().y > -lowerY || ball.getPosition().y < lowerY))
+        if ((ball.getPosition().x > -lowerX || ball.getPosition().x < lowerX || ball.getPosition().y > -lowerY || ball.getPosition().y < lowerY))
             //ganhou = false;
             mensagem("Try again." + "\n You lost! \n"); // neste caso, você perdeu.
 
+        boolean todosInimigosDerrotados = true;
         for (Body bola : bolasInimigas)
-            if ((bola.getPosition().x > -lowerX  || bola.getPosition().x < lowerX || bola.getPosition().y > -lowerY || bola.getPosition().y < lowerY))
-                //ganhou = true;
-                mensagem("Very good!" + "\n You won! \n"); // neste caso, você ganhou.
-
+            if (!(bola.getPosition().x > -lowerX || bola.getPosition().x < lowerX || bola.getPosition().y > -lowerY || bola.getPosition().y < lowerY)) {
+                todosInimigosDerrotados = false;
+            }
+        if (todosInimigosDerrotados) {
+            //ganhou = true;
+            mensagem("Very good!" + "\n You won! \n"); // neste caso, você ganhou.
+        }
     }
 
     void drawBolas() {
