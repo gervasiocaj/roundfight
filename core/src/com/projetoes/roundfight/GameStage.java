@@ -32,20 +32,28 @@ public class GameStage extends Stage {
     private TextureData arena;
     private MyGdxGame game;
     private World world;
-    private TextButton buttonPause, buttonDash, buttonBackMenu, buttonNewGame, buttonNextState;
     private ShapeRenderer renderer;
     private OrthographicCamera camera;
+    private LinkedList<Body> bolasInimigas;
+    private TextButton.TextButtonStyle textButtonStyle;
+    private Vector2 positionball, forceballpc, velocidadepc;
+    private TextButton buttonPause, buttonDash, buttonBackMenu, buttonNewGame, buttonNextStage;
+
     boolean gamePaused = false;
     boolean vibrate = false;
-    private Vector2 positionball, forceballpc, velocidadepc;
-    private TextButton.TextButtonStyle textButtonStyle;
-    private LinkedList<Body> bolasInimigas;
+
     private int estagioPontuacao;
+    private int corBolasEstagio;
+
+    private Random random = new Random();
 
     public GameStage(final MyGdxGame game, final boolean vibrate, int estagioPontuacao) {
         this.game = game;
         this.vibrate = vibrate;
         this.estagioPontuacao = estagioPontuacao;
+        this.corBolasEstagio = random.nextInt(12);
+
+        // OBS: QUANDO FOR REFATORAR, LEMBRAR DE CRIAR UM METODO INICIALIZA() E COLOCAR ESSAS INSTANCIAS NELE
 
         Gdx.input.setInputProcessor(null); // para sobrescrever os ClickListeners da classe MainMenuScreen
         world = new World(new Vector2(0, 0), true);
@@ -59,7 +67,6 @@ public class GameStage extends Stage {
 
         bolasInimigas = new LinkedList<Body>();
         criarBolas(world, estagioPontuacao);
-
         arena = Assets.background.getTextureData();
 
         TextButton.TextButtonStyle pauseButtonStyle = new TextButton.TextButtonStyle();
@@ -96,9 +103,9 @@ public class GameStage extends Stage {
         table.defaults().size(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 6);
         table.align(Align.topRight).row();
 
-        table.add(labelEstagio);
+        // table.add(labelEstagio); Adicao do estagio na tela
         table.add(buttonPause);
-        for (int i = 0; i < 4; i++){
+        for (int i = 0; i < 5; i++){
             table.align(Align.topRight).add().row();
         }
         table.add(buttonDash);
@@ -109,7 +116,7 @@ public class GameStage extends Stage {
 
     void criarBolas(World world, int quantidade) {
         Random r = new Random();
-        float maxX = 0.3f, minX = 0.0f;
+        final float minX = -0.3f, maxX = 0.3f;
         ball = Assets.createBall(world, 0, 0); // cria uma nova bola neste mundo
         for (int i=0; i<quantidade; i++) {
             float posX = (maxX - minX) * r.nextFloat() + minX;
@@ -156,15 +163,59 @@ public class GameStage extends Stage {
         }
     }
 
-    void drawBolas() {
+    void drawBolas(int cor) {
         renderer.begin(ShapeRenderer.ShapeType.Filled);
-        renderer.setColor(Color.WHITE);
+        renderer.setColor(new Color(255, 255, 255, 0));
         renderer.circle(ball.getPosition().x, ball.getPosition().y, 0.025f, 100);
-        renderer.setColor(Color.BLUE);
-        for (Body bola : bolasInimigas)
-            renderer.circle(bola.getPosition().x, bola.getPosition().y, 0.025f, 100);
+
+        corBolasInimigas(cor);
 
         renderer.end();
+    }
+
+    public void corBolasInimigas(int cor) {
+        for (Body bola : bolasInimigas) {
+
+            switch (cor) {
+                case 1:
+                    renderer.setColor(Color.GREEN);
+                    break;
+                case 2:
+                    renderer.setColor(Color.NAVY);
+                    break;
+                case 3:
+                    renderer.setColor(Color.BLUE);
+                    break;
+                case 4:
+                    renderer.setColor(Color.CYAN);
+                    break;
+                case 5:
+                    renderer.setColor(Color.MAROON);
+                    break;
+                case 6:
+                    renderer.setColor(Color.MAGENTA);
+                    break;
+                case 7:
+                    renderer.setColor(Color.OLIVE);
+                    break;
+                case 8:
+                    renderer.setColor(Color.ORANGE);
+                    break;
+                case 9:
+                    renderer.setColor(Color.PINK);
+                    break;
+                case 10:
+                    renderer.setColor(Color.RED);
+                    break;
+                case 11:
+                    renderer.setColor(Color.YELLOW);
+                    break;
+                default:
+                    renderer.setColor(Color.GREEN);
+                    break;
+            }
+            renderer.circle(bola.getPosition().x, bola.getPosition().y, 0.025f, 100);
+        }
     }
 
     void pausar() {
@@ -187,16 +238,15 @@ public class GameStage extends Stage {
     @Override
     public void draw() {
         super.draw();
-
         camera.update();
-        renderer.setProjectionMatrix(camera.combined);
 
+        renderer.setProjectionMatrix(camera.combined);
         renderer.begin(ShapeRenderer.ShapeType.Line);
         renderer.setColor(Color.GRAY);
         renderer.rect(-0.5f, -0.3f, 1f, 0.6f);
         renderer.end();
 
-        drawBolas();
+        drawBolas(corBolasEstagio);
 
         stage.draw();
 
@@ -238,14 +288,14 @@ public class GameStage extends Stage {
             }
         });
 
-        buttonNextState = new TextButton("Next State", textButtonStyle);
-        buttonNextState.addListener(new ClickListener() {
+        buttonNextStage = new TextButton("Next Stage", textButtonStyle);
+        buttonNextStage.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 if (vibrate) {
                     Gdx.input.vibrate(100);
                 }
-                game.setScreen(new GameStart(game, vibrate, estagioPontuacao+1)); // acao do botao (ir para uma nova tela de GameStart, incrementando em 1 a pontuação)
+                game.setScreen(new GameStart(game, vibrate, estagioPontuacao + 1)); // acao do botao (ir para uma nova tela de GameStart, incrementando em 1 a pontuação)
             }
         });
 
@@ -262,7 +312,7 @@ public class GameStage extends Stage {
             // adicionando os botões na tela de vitoria
             table.add(buttonBackMenu).row();
             table.row();
-            table.add(buttonNextState);
+            table.add(buttonNextStage);
         } else {
             // adicionando os botões na tela de derrota
             table.add(buttonBackMenu).row();
