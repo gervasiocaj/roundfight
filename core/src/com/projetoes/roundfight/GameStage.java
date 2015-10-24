@@ -146,13 +146,22 @@ public class GameStage extends Stage {
     }
 
     void verificarFimDoJogo() {
+        LinkedList<Body> bolasRemover = new LinkedList<Body>();
+        
         if (saiuDaArena(ball))
             mostrarMensagemFim("Try again." + "\n You lost! \n", false); // neste caso, você perdeu.
 
         boolean todosInimigosDerrotados = true;
-        for (Body bola : bolasInimigas)
-            if (!saiuDaArena(bola))
-                todosInimigosDerrotados = false; // TODO congelar os inimigos quando saírem da arena
+        for (Body bola : bolasInimigas) {
+            if (saiuDaArena(bola))
+                bolasRemover.add(bola);
+            else
+                todosInimigosDerrotados = false;
+        }
+
+        for(Body bola: bolasRemover) {
+            bolasInimigas.remove(bola);
+        }
 
         if (todosInimigosDerrotados)
             mostrarMensagemFim("Very good!" + "\n You won! \n", true); // neste caso, você ganhou.
