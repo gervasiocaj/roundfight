@@ -130,7 +130,6 @@ public class GameStage extends Stage {
 
         for (Body bola : bolasInimigas)
             setNovoAlvoIA(bola); // dá um novo alvo à bola inimiga
-
     }
 
     void setNovoAlvoIA(Body bola) {
@@ -152,7 +151,7 @@ public class GameStage extends Stage {
 
         boolean todosInimigosDerrotados = true;
         for (Body bola : bolasInimigas)
-            if (saiuDaArena(bola))
+            if (!saiuDaArena(bola))
                 todosInimigosDerrotados = false; // TODO congelar os inimigos quando saírem da arena
 
         if (todosInimigosDerrotados)
@@ -160,7 +159,10 @@ public class GameStage extends Stage {
     }
 
     boolean saiuDaArena(Body bola) {
-        return bola.getPosition().x > -ARENA_X || bola.getPosition().x < ARENA_X || bola.getPosition().y > -ARENA_Y || bola.getPosition().y < ARENA_Y;
+        return bola.getPosition().x > -ARENA_X ||
+                bola.getPosition().x < ARENA_X ||
+                bola.getPosition().y > -ARENA_Y ||
+                bola.getPosition().y < ARENA_Y;
     }
 
     void drawBolas(int cor) {
