@@ -41,8 +41,10 @@ public class GameStage extends Stage {
     private int estagioPontuacao;
     private int corBolasEstagio;
 
-    private final Random random = new Random();
-    private final Color[] cores = {Color.GREEN, Color.NAVY, Color.BLUE, Color.CYAN, Color.MAROON, Color.MAGENTA, Color.OLIVE, Color.ORANGE, Color.PINK, Color.RED, Color.YELLOW};
+    private static final float ARENA_X = -0.5f;
+    private static final float ARENA_Y = -0.3f;
+    private static final Random random = new Random();
+    private static final Color[] cores = {Color.GREEN, Color.NAVY, Color.BLUE, Color.CYAN, Color.MAROON, Color.MAGENTA, Color.OLIVE, Color.ORANGE, Color.PINK, Color.RED, Color.YELLOW};
 
     public GameStage(final MyGdxGame game, final boolean vibrate, int estagioPontuacao) {
         this.game = game;
@@ -145,17 +147,20 @@ public class GameStage extends Stage {
     }
 
     void verificarFimDoJogo() {
-        float lowerX = -0.5f, lowerY = -0.3f;
-        if ((ball.getPosition().x > -lowerX || ball.getPosition().x < lowerX || ball.getPosition().y > -lowerY || ball.getPosition().y < lowerY))
+        if (saiuDaArena(ball))
             mostrarMensagemFim("Try again." + "\n You lost! \n", false); // neste caso, você perdeu.
 
         boolean todosInimigosDerrotados = true;
         for (Body bola : bolasInimigas)
-            if (!(bola.getPosition().x > -lowerX || bola.getPosition().x < lowerX || bola.getPosition().y > -lowerY || bola.getPosition().y < lowerY))
-                todosInimigosDerrotados = false;
+            if (saiuDaArena(bola))
+                todosInimigosDerrotados = false; // TODO congelar os inimigos quando saírem da arena
 
         if (todosInimigosDerrotados)
             mostrarMensagemFim("Very good!" + "\n You won! \n", true); // neste caso, você ganhou.
+    }
+
+    boolean saiuDaArena(Body bola) {
+        return bola.getPosition().x > -ARENA_X || bola.getPosition().x < ARENA_X || bola.getPosition().y > -ARENA_Y || bola.getPosition().y < ARENA_Y;
     }
 
     void drawBolas(int cor) {
@@ -199,7 +204,7 @@ public class GameStage extends Stage {
         renderer.setProjectionMatrix(camera.combined);
         renderer.begin(ShapeRenderer.ShapeType.Line);
         renderer.setColor(Color.GRAY);
-        renderer.rect(-0.5f, -0.3f, 1f, 0.6f);
+        renderer.rect(ARENA_X, ARENA_Y, 1f, 0.6f);
         renderer.end();
 
         drawBolas(corBolasEstagio);
