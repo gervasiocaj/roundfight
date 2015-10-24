@@ -22,6 +22,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 
 import java.util.LinkedList;
+import java.util.Random;
 
 public class GameStage extends Stage {
 
@@ -107,9 +108,12 @@ public class GameStage extends Stage {
     }
 
     void criarBolas(World world, int quantidade) {
+        Random r = new Random();
+        float maxX = 0.3f, minX = 0.0f;
         ball = Assets.createBall(world, 0, 0); // cria uma nova bola neste mundo
         for (int i=0; i<quantidade; i++) {
-            float posX = 0.1f, posY = 0.1f; // TODO posicao random
+            float posX = (maxX - minX) * r.nextFloat() + minX;
+            float posY = (maxX - minX) * r.nextFloat() + minX;
             bolasInimigas.add(Assets.createBall(world, posX, posY));
         }
     }
