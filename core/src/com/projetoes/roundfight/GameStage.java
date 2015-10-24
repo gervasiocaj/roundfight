@@ -8,7 +8,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.TextureData;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
@@ -29,14 +28,11 @@ public class GameStage extends Stage {
     private Table table;
     private Stage stage;
     private Body ball;
-    private TextureData arena;
     private MyGdxGame game;
     private World world;
     private ShapeRenderer renderer;
     private OrthographicCamera camera;
     private LinkedList<Body> bolasInimigas;
-    private TextButton.TextButtonStyle textButtonStyle;
-    private Vector2 positionball, forceballpc, velocidadepc;
     private TextButton buttonPause, buttonDash, buttonBackMenu, buttonNewGame, buttonNextStage;
 
     boolean gamePaused = false;
@@ -45,13 +41,14 @@ public class GameStage extends Stage {
     private int estagioPontuacao;
     private int corBolasEstagio;
 
-    private Random random = new Random();
+    private final Random random = new Random();
+    private final Color[] cores = {Color.GREEN, Color.NAVY, Color.BLUE, Color.CYAN, Color.MAROON, Color.MAGENTA, Color.OLIVE, Color.ORANGE, Color.PINK, Color.RED, Color.YELLOW};
 
     public GameStage(final MyGdxGame game, final boolean vibrate, int estagioPontuacao) {
         this.game = game;
         this.vibrate = vibrate;
         this.estagioPontuacao = estagioPontuacao;
-        this.corBolasEstagio = random.nextInt(12);
+        this.corBolasEstagio = random.nextInt(cores.length);
 
         // OBS: QUANDO FOR REFATORAR, LEMBRAR DE CRIAR UM METODO INICIALIZA() E COLOCAR ESSAS INSTANCIAS NELE
 
@@ -63,11 +60,11 @@ public class GameStage extends Stage {
 
         // o mundo é infinito para todos os lados, e a câmera está a uma altura x do ponto inicial
         // não lembro exatamente como cheguei a esta fórmula, mas deve funcionar para todas as resoluções de tela
-        camera = new OrthographicCamera(1.3f, 1.3f * Float.valueOf(Gdx.graphics.getHeight()) / Float.valueOf(Gdx.graphics.getWidth()));
+        camera = new OrthographicCamera(1.3f, 1.3f * Gdx.graphics.getHeight() / (Gdx.graphics.getWidth() * 1f));
 
         bolasInimigas = new LinkedList<Body>();
         criarBolas(world, estagioPontuacao);
-        arena = Assets.background.getTextureData();
+        // TextureData arena = Assets.background.getTextureData(); TODO carla, favor olhar
 
         TextButton.TextButtonStyle pauseButtonStyle = new TextButton.TextButtonStyle();
         pauseButtonStyle.font = Assets.font_small;
@@ -76,7 +73,7 @@ public class GameStage extends Stage {
         buttonPause.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if(vibrate){ Gdx.input.vibrate(100);}
+                if (vibrate) Gdx.input.vibrate(100);
                 pausar();
             }
         });
@@ -85,7 +82,7 @@ public class GameStage extends Stage {
         buttonDash.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if(vibrate){ Gdx.input.vibrate(100);}
+                if (vibrate) Gdx.input.vibrate(100);
                 dash(ball);
             }
         });
@@ -115,12 +112,11 @@ public class GameStage extends Stage {
     }
 
     void criarBolas(World world, int quantidade) {
-        Random r = new Random();
         final float minX = -0.3f, maxX = 0.3f;
         ball = Assets.createBall(world, 0, 0); // cria uma nova bola neste mundo
         for (int i=0; i<quantidade; i++) {
-            float posX = (maxX - minX) * r.nextFloat() + minX;
-            float posY = (maxX - minX) * r.nextFloat() + minX;
+            float posX = (maxX - minX) * random.nextFloat() + minX;
+            float posY = (maxX - minX) * random.nextFloat() + minX;
             bolasInimigas.add(Assets.createBall(world, posX, posY));
         }
     }
@@ -136,31 +132,30 @@ public class GameStage extends Stage {
     }
 
     void setNovoAlvoIA(Body bola) {
-        positionball = ball.getPosition();
-        forceballpc = bola.getPosition();
-        forceballpc.set(positionball.x - forceballpc.x, positionball.y - forceballpc.y);
-        velocidadepc = bola.getLinearVelocity();
-        velocidadepc.rotate(2f * velocidadepc.angle(forceballpc));
-        forceballpc.add(velocidadepc);
+        Vector2 posicaoBola, forcaBolaInimiga, velocidadeBolaInimiga;
 
-        bola.applyForceToCenter(forceballpc.x / 150f, forceballpc.y / 150f, true);
+        posicaoBola = ball.getPosition();
+        forcaBolaInimiga = bola.getPosition();
+        forcaBolaInimiga.set(posicaoBola.x - forcaBolaInimiga.x, posicaoBola.y - forcaBolaInimiga.y);
+        velocidadeBolaInimiga = bola.getLinearVelocity();
+        velocidadeBolaInimiga.rotate(2f * velocidadeBolaInimiga.angle(forcaBolaInimiga));
+        forcaBolaInimiga.add(velocidadeBolaInimiga);
+
+        bola.applyForceToCenter(forcaBolaInimiga.x / 150f, forcaBolaInimiga.y / 150f, true);
     }
 
     void verificarFimDoJogo() {
         float lowerX = -0.5f, lowerY = -0.3f;
         if ((ball.getPosition().x > -lowerX || ball.getPosition().x < lowerX || ball.getPosition().y > -lowerY || ball.getPosition().y < lowerY))
-            //ganhou = false;
-            mensagem("Try again." + "\n You lost! \n", false); // neste caso, você perdeu.
+            mostrarMensagemFim("Try again." + "\n You lost! \n", false); // neste caso, você perdeu.
 
         boolean todosInimigosDerrotados = true;
         for (Body bola : bolasInimigas)
-            if (!(bola.getPosition().x > -lowerX || bola.getPosition().x < lowerX || bola.getPosition().y > -lowerY || bola.getPosition().y < lowerY)) {
+            if (!(bola.getPosition().x > -lowerX || bola.getPosition().x < lowerX || bola.getPosition().y > -lowerY || bola.getPosition().y < lowerY))
                 todosInimigosDerrotados = false;
-            }
-        if (todosInimigosDerrotados) {
-            //ganhou = true;
-            mensagem("Very good!" + "\n You won! \n", true); // neste caso, você ganhou.
-        }
+
+        if (todosInimigosDerrotados)
+            mostrarMensagemFim("Very good!" + "\n You won! \n", true); // neste caso, você ganhou.
     }
 
     void drawBolas(int cor) {
@@ -175,45 +170,7 @@ public class GameStage extends Stage {
 
     public void corBolasInimigas(int cor) {
         for (Body bola : bolasInimigas) {
-
-            switch (cor) {
-                case 1:
-                    renderer.setColor(Color.GREEN);
-                    break;
-                case 2:
-                    renderer.setColor(Color.NAVY);
-                    break;
-                case 3:
-                    renderer.setColor(Color.BLUE);
-                    break;
-                case 4:
-                    renderer.setColor(Color.CYAN);
-                    break;
-                case 5:
-                    renderer.setColor(Color.MAROON);
-                    break;
-                case 6:
-                    renderer.setColor(Color.MAGENTA);
-                    break;
-                case 7:
-                    renderer.setColor(Color.OLIVE);
-                    break;
-                case 8:
-                    renderer.setColor(Color.ORANGE);
-                    break;
-                case 9:
-                    renderer.setColor(Color.PINK);
-                    break;
-                case 10:
-                    renderer.setColor(Color.RED);
-                    break;
-                case 11:
-                    renderer.setColor(Color.YELLOW);
-                    break;
-                default:
-                    renderer.setColor(Color.GREEN);
-                    break;
-            }
+            renderer.setColor(cores[cor]);
             renderer.circle(bola.getPosition().x, bola.getPosition().y, 0.025f, 100);
         }
     }
@@ -232,7 +189,6 @@ public class GameStage extends Stage {
 
         aplicarForcasBolas();
         verificarFimDoJogo();
-
     }
 
     @Override
@@ -254,25 +210,27 @@ public class GameStage extends Stage {
             game.setScreen(new MainMenuScreen(game, vibrate)); // TODO mostrar tela de confirmação
     }
 
-    public void mensagem(String msg, boolean venceu) {
+    public void mostrarMensagemFim(String msg, boolean venceu) {
         gamePaused = true;
 
+        Label labelTitle;
+        Label.LabelStyle labelStyle;
+        TextButton.TextButtonStyle textButtonStyle;
+
         // configuracao da fonte da mensagem
-        Label.LabelStyle labelStyle = new Label.LabelStyle(); // estilo da mensagem
+        labelStyle = new Label.LabelStyle(); // estilo da mensagem
         labelStyle.font = Assets.font_small; // fonte pequena
         textButtonStyle = new TextButton.TextButtonStyle(); // estilo dos botoes
         textButtonStyle.font = Assets.font_small; // fonte pequena
 
-        Label labelTitle = new Label(msg, labelStyle);
+        labelTitle = new Label(msg, labelStyle);
         labelTitle.setAlignment(Align.center);
 
         buttonBackMenu = new TextButton("Back Menu", textButtonStyle);
         buttonBackMenu.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if (vibrate) {
-                    Gdx.input.vibrate(100);
-                }
+                if (vibrate) Gdx.input.vibrate(100);
                 game.setScreen(new MainMenuScreen(game, vibrate)); // acao do botao (ir para o Menu principal)
             }
         });
@@ -281,9 +239,7 @@ public class GameStage extends Stage {
         buttonNewGame.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if (vibrate) {
-                    Gdx.input.vibrate(100);
-                }
+                if (vibrate) Gdx.input.vibrate(100);
                 game.setScreen(new GameStart(game, vibrate, 1)); // acao do botao (iniciar um novo GameStart, com pontuação 1)
             }
         });
@@ -292,9 +248,7 @@ public class GameStage extends Stage {
         buttonNextStage.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if (vibrate) {
-                    Gdx.input.vibrate(100);
-                }
+                if (vibrate) Gdx.input.vibrate(100);
                 game.setScreen(new GameStart(game, vibrate, estagioPontuacao + 1)); // acao do botao (ir para uma nova tela de GameStart, incrementando em 1 a pontuação)
             }
         });
@@ -308,7 +262,7 @@ public class GameStage extends Stage {
         table.add(labelTitle).row();
         table.row();
 
-        if(venceu) {
+        if (venceu) {
             // adicionando os botões na tela de vitoria
             table.add(buttonBackMenu).row();
             table.row();
@@ -326,7 +280,7 @@ public class GameStage extends Stage {
     }
 
     public void dash(Body obj){
-        Dash d = new Dash(ball);
+        Dash d = new Dash(obj);
         d.start();
     }
 
