@@ -44,6 +44,14 @@ public class MainMenuScreen extends ScreenAdapter {
         textButtonStyle.font = Assets.font_medium; // fonte media que foi gerada
     }
 
+    public void criaConfiguraTabela() {
+        // disposicao dos elementos na tela
+        table = new Table();
+        table.setFillParent(true);
+        table.align(Align.center);
+        table.defaults().size(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 6);
+    }
+
     @Override
     public void render(float delta) {
         Gdx.gl.glClearColor(0,0,0,1);
@@ -76,7 +84,7 @@ public class MainMenuScreen extends ScreenAdapter {
         buttonStart.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if(vibrate){
+                if (vibrate) {
                     Gdx.input.vibrate(100);
                 }
                 game.setScreen(new GameStart(game, vibrate, 1)); // acao do botao (ir para uma nova tela de GameStart)
@@ -87,17 +95,15 @@ public class MainMenuScreen extends ScreenAdapter {
         buttonOptions.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if(vibrate){ Gdx.input.vibrate(100);}
+                if (vibrate) {
+                    Gdx.input.vibrate(100);
+                }
                 show2();// acao do botao (ir para uma nova tela de GameStart)
             }
         });
         // ---------------------------
 
-        // disposicao dos elementos na tela 
-        table = new Table();
-        table.setFillParent(true);
-        table.align(Align.center);
-        table.defaults().size(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 6);
+       criaConfiguraTabela();
 
         // row significa nova linha, mesma coisa de table.add(labelTitle); table.row(); 
         table.add(labelTitle).row();
@@ -172,11 +178,7 @@ public class MainMenuScreen extends ScreenAdapter {
         });
         // ---------------------------
 
-        // disposicao dos elementos na tela
-        table = new Table();
-        table.setFillParent(true);
-        table.align(Align.center);
-        table.defaults().size(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 6);
+        criaConfiguraTabela();
 
         // row significa nova linha, mesma coisa de table.add(labelTitle); table.row();
         table.add(labelTitle).row();
@@ -210,8 +212,10 @@ public class MainMenuScreen extends ScreenAdapter {
         buttonBack.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if(vibrate){ Gdx.input.vibrate(100);}
-                if(sound){
+                if (vibrate) {
+                    Gdx.input.vibrate(100);
+                }
+                if (sound) {
 
                 }
                 show2(); // acao do botao (ir para uma nova tela de GameStart)
@@ -219,17 +223,12 @@ public class MainMenuScreen extends ScreenAdapter {
         });
         // ---------------------------
 
-        // disposicao dos elementos na tela
-        table = new Table();
-        table.setFillParent(true);
-        table.align(Align.center);
-        table.defaults().size(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 6);
+        criaConfiguraTabela();
 
         // row significa nova linha, mesma coisa de table.add(labelTitle); table.row();
         table.add(labelTitle).row();
         table.add(labelTitle2).row();
         table.add(buttonBack).row();
-
 
         stage.addActor(table); // adiciona no stage
         Gdx.input.setInputProcessor(stage); // adiciona esse stage ao processamento padrao do jogo

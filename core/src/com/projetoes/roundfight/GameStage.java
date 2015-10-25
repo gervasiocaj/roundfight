@@ -99,10 +99,7 @@ public class GameStage extends Stage {
         Label labelEstagio = new Label("Estagio: " + String.valueOf(estagioPontuacao), labelStyle);
         labelEstagio.setAlignment(Align.center);
 
-        table = new Table();
-        table.setFillParent(true);
-        table.defaults().size(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 6);
-        table.align(Align.topRight).row();
+        criaTabela();
 
         // table.add(labelEstagio); Adicao do estagio na tela
         table.add(buttonPause);
@@ -110,6 +107,7 @@ public class GameStage extends Stage {
             table.align(Align.topRight).add().row();
         }
         table.add(buttonDash);
+
         stage = new Stage();
         stage.addActor(table);
         Gdx.input.setInputProcessor(stage);
@@ -121,6 +119,14 @@ public class GameStage extends Stage {
         labelStyle.font = Assets.font_small; // fonte pequena que foi gerada
         textButtonStyle = new TextButton.TextButtonStyle(); // estilo dos botoes
         textButtonStyle.font = Assets.font_small; // fonte pequena que foi gerada
+    }
+
+    public void criaTabela() {
+        // disposicao dos elementos na tela
+        table = new Table();
+        table.setFillParent(true);
+        table.align(Align.center);
+        table.defaults().size(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 6);
     }
 
     void criarBolas(World world, int quantidade) {
@@ -237,11 +243,7 @@ public class GameStage extends Stage {
             }
         });
 
-        // disposicao dos elementos na tela
-        table = new Table();
-        table.setFillParent(true);
-        table.align(Align.center);
-        table.defaults().size(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 6);
+        criaTabela();
 
         table.add(labelTitle).row();
         table.row();
@@ -291,7 +293,7 @@ public class GameStage extends Stage {
     }
 
     public void mostrarMensagemFim(String msg, boolean venceu) {
-        stage = new Stage();
+        //stage = new Stage();
         gamePaused = true;
 
         labelTitle = new Label(msg, labelStyle);
@@ -324,11 +326,7 @@ public class GameStage extends Stage {
             }
         });
 
-        // disposicao dos elementos na tela
-        table = new Table();
-        table.setFillParent(true);
-        table.align(Align.center);
-        table.defaults().size(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 6);
+        criaTabela();
 
         table.add(labelTitle).row();
         table.row();
