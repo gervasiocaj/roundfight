@@ -33,7 +33,10 @@ public class GameStage extends Stage {
     private ShapeRenderer renderer;
     private OrthographicCamera camera;
     private LinkedList<Body> bolasInimigas;
-    private TextButton buttonPause, buttonDash, buttonBackMenu, buttonNewGame, buttonNextStage;
+    private Label labelTitle;
+    private Label.LabelStyle labelStyle;
+    private TextButton.TextButtonStyle textButtonStyle;
+    private TextButton buttonPause, buttonDash, buttonBack, buttonBackMenu, buttonNewGame, buttonNextStage;
 
     boolean gamePaused = false;
     boolean vibrate = false;
@@ -52,6 +55,8 @@ public class GameStage extends Stage {
         this.estagioPontuacao = estagioPontuacao;
         this.corBolasEstagio = random.nextInt(cores.length);
 
+        configuracaoFonteTextos();
+
         // OBS: QUANDO FOR REFATORAR, LEMBRAR DE CRIAR UM METODO INICIALIZA() E COLOCAR ESSAS INSTANCIAS NELE
 
         Gdx.input.setInputProcessor(null); // para sobrescrever os ClickListeners da classe MainMenuScreen
@@ -68,19 +73,19 @@ public class GameStage extends Stage {
         criarBolas(world, estagioPontuacao);
         // TextureData arena = Assets.background.getTextureData(); TODO carla, favor olhar
 
-        TextButton.TextButtonStyle pauseButtonStyle = new TextButton.TextButtonStyle();
-        pauseButtonStyle.font = Assets.font_small;
-
-        buttonPause = new TextButton("||", pauseButtonStyle);
+        buttonPause = new TextButton("||", textButtonStyle);
         buttonPause.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 if (vibrate) Gdx.input.vibrate(100);
-                pausar();
+                gamePaused = !gamePaused;
+                opcoesPause();
+
+                //pausar();
             }
         });
 
-        buttonDash = new TextButton(">>>", pauseButtonStyle);
+        buttonDash = new TextButton(">>>", textButtonStyle);
         buttonDash.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -89,9 +94,6 @@ public class GameStage extends Stage {
             }
         });
 
-        // configuracao da fonte
-        Label.LabelStyle labelStyle = new Label.LabelStyle(); // estilo do titulo
-        labelStyle.font = Assets.font_medium; // fonte media que foi gerada
 
         // estagio
         Label labelEstagio = new Label("Estagio: " + String.valueOf(estagioPontuacao), labelStyle);
@@ -111,6 +113,14 @@ public class GameStage extends Stage {
         stage = new Stage();
         stage.addActor(table);
         Gdx.input.setInputProcessor(stage);
+    }
+
+    public void configuracaoFonteTextos() {
+        // Por enquanto, tamanho das fontes pequeno
+        labelStyle = new Label.LabelStyle(); // estilo do titulo
+        labelStyle.font = Assets.font_small; // fonte pequena que foi gerada
+        textButtonStyle = new TextButton.TextButtonStyle(); // estilo dos botoes
+        textButtonStyle.font = Assets.font_small; // fonte pequena que foi gerada
     }
 
     void criarBolas(World world, int quantidade) {
@@ -191,6 +201,60 @@ public class GameStage extends Stage {
         }
     }
 
+    public void opcoesPause() {
+        stage = new Stage();
+
+        labelTitle = new Label("Opçoes", labelStyle);
+        labelTitle.setAlignment(Align.center);
+
+        buttonBackMenu = new TextButton("Desistir do jogo", textButtonStyle);
+        buttonBackMenu.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                if (vibrate) Gdx.input.vibrate(100);
+                game.setScreen(new MainMenuScreen(game, vibrate)); // acao do botao (ir para o Menu principal)
+                // TODO concervar pontuacao
+            }
+        });
+
+        buttonNewGame = new TextButton("Reiniciar partida", textButtonStyle);
+        buttonNewGame.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                if (vibrate) Gdx.input.vibrate(100);
+                game.setScreen(new GameStart(game, vibrate, estagioPontuacao)); // acao do botao (iniciar um novo GameStart, com pontuação 1)
+            }
+        });
+
+        buttonBack = new TextButton("Voltar ao jogo", textButtonStyle);
+        buttonBack.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                if (vibrate) Gdx.input.vibrate(100);
+                // aqui tem que fazer ele voltar ao jogo (sair da tela q foi criada)
+                gamePaused = !gamePaused;
+                //game.setScreen(new GameStart(game, vibrate, 1)); // acao do botao (iniciar um novo GameStart, com pontuação 1)
+            }
+        });
+
+        // disposicao dos elementos na tela
+        table = new Table();
+        table.setFillParent(true);
+        table.align(Align.center);
+        table.defaults().size(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 6);
+
+        table.add(labelTitle).row();
+        table.row();
+        table.add(buttonBackMenu).row();
+        table.row();
+        table.add(buttonNewGame).row();
+        table.row();
+        table.add(buttonBack);
+
+        stage.addActor(table); // adiciona no stage
+        Gdx.input.setInputProcessor(stage); // adiciona esse stage ao processamento padrao do jogo
+    }
+
     void pausar() {
         gamePaused = !gamePaused;
         buttonPause.setText(gamePaused ? ">" : "||");
@@ -227,17 +291,8 @@ public class GameStage extends Stage {
     }
 
     public void mostrarMensagemFim(String msg, boolean venceu) {
+        stage = new Stage();
         gamePaused = true;
-
-        Label labelTitle;
-        Label.LabelStyle labelStyle;
-        TextButton.TextButtonStyle textButtonStyle;
-
-        // configuracao da fonte da mensagem
-        labelStyle = new Label.LabelStyle(); // estilo da mensagem
-        labelStyle.font = Assets.font_small; // fonte pequena
-        textButtonStyle = new TextButton.TextButtonStyle(); // estilo dos botoes
-        textButtonStyle.font = Assets.font_small; // fonte pequena
 
         labelTitle = new Label(msg, labelStyle);
         labelTitle.setAlignment(Align.center);

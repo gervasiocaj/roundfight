@@ -21,17 +21,27 @@ public class MainMenuScreen extends ScreenAdapter {
     private final MyGdxGame game;
     private Table table;
     private Stage stage;
+    private Label.LabelStyle labelStyle;
     private TextButton.TextButtonStyle textButtonStyle;
     private TextButton buttonStart, buttonExit, buttonOptions;
     private TextButton buttonSound, buttonVibrate, buttonHelp, buttonBack;
     public boolean vibrate = false;
     protected boolean sound = false;
 
-
     public MainMenuScreen(MyGdxGame game, boolean vibrate) {
         this.game = game;
         this.vibrate = vibrate;
         Gdx.input.setCatchBackKey(true);
+
+        configuracaoFonteTextos();
+    }
+
+    public void configuracaoFonteTextos() {
+        // configuracao da fonte
+        labelStyle = new Label.LabelStyle(); // estilo do titulo
+        labelStyle.font = Assets.font_large; // fonte grande que foi gerada
+        textButtonStyle = new TextButton.TextButtonStyle(); // estilo dos botoes
+        textButtonStyle.font = Assets.font_medium; // fonte media que foi gerada
     }
 
     @Override
@@ -46,12 +56,6 @@ public class MainMenuScreen extends ScreenAdapter {
     public void show() {
         super.show();
         stage = new Stage();
-
-        // configuracao da fonte
-        Label.LabelStyle labelStyle = new Label.LabelStyle(); // estilo do titulo
-        labelStyle.font = Assets.font_large; // fonte grande que foi gerada
-        textButtonStyle = new TextButton.TextButtonStyle(); // estilo dos botoes
-        textButtonStyle.font = Assets.font_medium; // fonte media que foi gerada
 
         // titulo
         Label labelTitle = new Label("RoundFight", labelStyle);
@@ -107,15 +111,8 @@ public class MainMenuScreen extends ScreenAdapter {
     }
 
     public void show2() {
-
         super.show();
         stage = new Stage();
-
-        // configuracao da fonte
-        Label.LabelStyle labelStyle = new Label.LabelStyle(); // estilo do titulo
-        labelStyle.font = Assets.font_large; // fonte grande que foi gerada
-        textButtonStyle = new TextButton.TextButtonStyle(); // estilo dos botoes
-        textButtonStyle.font = Assets.font_medium; // fonte media que foi gerada
 
         // titulo
         Label labelTitle = new Label("Options", labelStyle);
@@ -197,21 +194,13 @@ public class MainMenuScreen extends ScreenAdapter {
         super.show();
         stage = new Stage();
 
-        // configuracao da fonte
-        Label.LabelStyle labelStyle = new Label.LabelStyle(); // estilo do titulo
-        labelStyle.font = Assets.font_large; // fonte grande que foi gerada
-        Label.LabelStyle labelStyle2 = new Label.LabelStyle(); // estilo do titulo
-        labelStyle2.font = Assets.font_medium; // fonte grande que foi gerada
-        textButtonStyle = new TextButton.TextButtonStyle(); // estilo dos botoes
-        textButtonStyle.font = Assets.font_medium; // fonte media que foi gerada
-
         // titulo
         Label labelTitle = new Label("Help", labelStyle);
         labelTitle.setAlignment(Align.center);
 
         Label labelTitle2 = new Label("\nVocê precisa derrotar seu oponente," +
                 "\n empurrando-o para fora da arena." +
-                "\n Para isso mova o celular. \n", labelStyle2);
+                "\n Para isso mova o celular. \n", labelStyle);
         labelTitle2.setAlignment(Align.center);
         // botoes
         // --------------------------
@@ -244,5 +233,4 @@ public class MainMenuScreen extends ScreenAdapter {
         stage.addActor(table); // adiciona no stage
         Gdx.input.setInputProcessor(stage); // adiciona esse stage ao processamento padrao do jogo
     }
-
 }
