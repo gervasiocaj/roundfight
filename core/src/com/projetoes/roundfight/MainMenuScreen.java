@@ -198,9 +198,10 @@ public class MainMenuScreen extends ScreenAdapter {
         Label labelTitle = new Label("Help", labelStyle);
         labelTitle.setAlignment(Align.center);
 
-        Label labelTitle2 = new Label("\nVocê precisa derrotar seu oponente," +
-                "\n empurrando-o para fora da arena." +
-                "\n Para isso mova o celular. \n", labelStyle);
+        Label labelTitle2 = new Label("\nYou need to defeat your enemies," +
+                "\n throwing them out of the arena." +
+                "\n Tilt your device to move the ball." + 
+                "\n Press the >>> button to dash.", labelStyle);
         labelTitle2.setAlignment(Align.center);
         // botoes
         // --------------------------
