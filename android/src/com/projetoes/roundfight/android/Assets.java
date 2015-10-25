@@ -1,4 +1,4 @@
-package com.projetoes.roundfight;
+package com.projetoes.roundfight.android;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;

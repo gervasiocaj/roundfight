@@ -1,4 +1,4 @@
-package com.projetoes.roundfight;
+package com.projetoes.roundfight.android;
 
 /**
  * Created by asus on 17/10/2015.
@@ -163,7 +163,7 @@ public class GameStage extends Stage {
 
     void verificarFimDoJogo() {
         LinkedList<Body> bolasRemover = new LinkedList<Body>();
-        
+
         if (saiuDaArena(ball))
             mostrarMensagemFim("Try again." + "\n You lost! \n", false); // neste caso, você perdeu.
 
