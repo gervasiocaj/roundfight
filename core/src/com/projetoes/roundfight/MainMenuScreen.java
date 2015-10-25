@@ -1,17 +1,13 @@
 package com.projetoes.roundfight;
 
-import com.badlogic.gdx.Audio;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.ScreenAdapter;
-import com.badlogic.gdx.audio.Sound;
-import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.Input.TextInputListener;
 
 /**
  * Created by Gervasio on 4/6/2015.
@@ -21,6 +17,7 @@ public class MainMenuScreen extends ScreenAdapter {
     private final MyGdxGame game;
     private Table table;
     private Stage stage;
+    private String nomeJogador = "";
     private Label.LabelStyle labelStyle;
     private TextButton.TextButtonStyle textButtonStyle;
     private TextButton buttonStart, buttonExit, buttonOptions;
@@ -52,6 +49,21 @@ public class MainMenuScreen extends ScreenAdapter {
         table.defaults().size(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 6);
     }
 
+    public void verificaNomeUsuario() {
+        Gdx.input.getTextInput(new TextInputListener() {
+
+            @Override
+            public void input(String text) {
+                nomeJogador = text;
+            }
+
+            @Override
+            public void canceled() {
+                nomeJogador = "cancelado pelo usuario";
+            }
+        }, "Por favor, digite o seu nome", nomeJogador, "");
+    }
+
     @Override
     public void render(float delta) {
         Gdx.gl.glClearColor(0,0,0,1);
@@ -64,6 +76,11 @@ public class MainMenuScreen extends ScreenAdapter {
     public void show() {
         super.show();
         stage = new Stage();
+
+        //TODO Falta salvar o nome do jogador. Atualmente ele pede toda vez pq sempre q o MainMenu é iniciado, o nomeJogador recebe ""
+        if(nomeJogador.equals("") || nomeJogador.equals("cancelado pelo usuario")) {
+            verificaNomeUsuario();
+        }
 
         // titulo
         Label labelTitle = new Label("RoundFight", labelStyle);
@@ -169,8 +186,10 @@ public class MainMenuScreen extends ScreenAdapter {
         buttonBack.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if(vibrate){ Gdx.input.vibrate(100);}
-                if(sound){
+                if (vibrate) {
+                    Gdx.input.vibrate(100);
+                }
+                if (sound) {
 
                 }
                 show(); // acao do botao (ir para uma nova tela de GameStart)
