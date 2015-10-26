@@ -1,4 +1,4 @@
-package com.projetoes.roundfight;
+package com.projetoes.roundfight.android;
 
 /**
  * Created by asus on 17/10/2015.
@@ -349,7 +349,7 @@ public class GameStage extends Stage {
     }
 
     public void dash(Body obj){
-        Dash d = new Dash(obj);
+        com.projetoes.roundfight.android.Dash d = new com.projetoes.roundfight.android.Dash(obj);
         d.start();
     }
 

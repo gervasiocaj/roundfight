@@ -1,4 +1,6 @@
-package com.projetoes.roundfight;
+package com.projetoes.roundfight.android;
+
+import android.content.SharedPreferences;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
@@ -17,7 +19,6 @@ public class MainMenuScreen extends ScreenAdapter {
     private final MyGdxGame game;
     private Table table;
     private Stage stage;
-    private String nomeJogador = "";
     private Label.LabelStyle labelStyle;
     private TextButton.TextButtonStyle textButtonStyle;
     private TextButton buttonStart, buttonExit, buttonOptions;
@@ -50,18 +51,23 @@ public class MainMenuScreen extends ScreenAdapter {
     }
 
     public void verificaNomeUsuario() {
-        Gdx.input.getTextInput(new TextInputListener() {
+        final SharedPreferences.Editor editor = AndroidLauncher.prefs.edit();
 
+        TextInputListener inputListener = new TextInputListener() {
             @Override
             public void input(String text) {
-                nomeJogador = text;
+                editor.putString("username", text);
+                editor.commit();
             }
-
             @Override
             public void canceled() {
-                nomeJogador = "cancelado pelo usuario";
+                if (!AndroidLauncher.prefs.contains("username"))
+                    editor.putString("username", null);
+                editor.commit();
             }
-        }, "Por favor, digite o seu nome", nomeJogador, "");
+        };
+
+        Gdx.input.getTextInput(inputListener, "Por favor, digite o seu nome", "", "");
     }
 
     @Override
@@ -78,9 +84,8 @@ public class MainMenuScreen extends ScreenAdapter {
         stage = new Stage();
 
         //TODO Falta salvar o nome do jogador. Atualmente ele pede toda vez pq sempre q o MainMenu é iniciado, o nomeJogador recebe ""
-        if(nomeJogador.equals("") || nomeJogador.equals("cancelado pelo usuario")) {
+        if(!AndroidLauncher.prefs.contains("username"))
             verificaNomeUsuario();
-        }
 
         // titulo
         Label labelTitle = new Label("RoundFight", labelStyle);
@@ -104,7 +109,7 @@ public class MainMenuScreen extends ScreenAdapter {
                 if (vibrate) {
                     Gdx.input.vibrate(100);
                 }
-                game.setScreen(new GameStart(game, vibrate, 1)); // acao do botao (ir para uma nova tela de GameStart)
+                game.setScreen(new com.projetoes.roundfight.android.GameStart(game, vibrate, 1)); // acao do botao (ir para uma nova tela de GameStart)
             }
         });
 
