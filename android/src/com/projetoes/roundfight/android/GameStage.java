@@ -238,7 +238,7 @@ public class GameStage extends Stage {
             public void clicked(InputEvent event, float x, float y) {
                 if (vibrate) Gdx.input.vibrate(100);
                 // aqui tem que fazer ele voltar ao jogo (sair da tela q foi criada)
-                gamePaused = !gamePaused;
+                pausar();
                 //game.setScreen(new GameStart(game, vibrate, 1)); // acao do botao (iniciar um novo GameStart, com pontuação 1)
             }
         });
@@ -259,7 +259,17 @@ public class GameStage extends Stage {
 
     void pausar() {
         gamePaused = !gamePaused;
-        buttonPause.setText(gamePaused ? ">" : "||");
+
+        criaTabela();
+        table.add(buttonPause);
+        for (int i = 0; i < 5; i++){
+            table.align(Align.topRight).add().row();
+        }
+        table.add(buttonDash);
+
+        stage = new Stage();
+        stage.addActor(table);
+        Gdx.input.setInputProcessor(stage);
     }
 
     @Override
@@ -293,7 +303,7 @@ public class GameStage extends Stage {
     }
 
     public void mostrarMensagemFim(String msg, boolean venceu) {
-        //stage = new Stage();
+        stage = new Stage();
         gamePaused = true;
 
         labelTitle = new Label(msg, labelStyle);
