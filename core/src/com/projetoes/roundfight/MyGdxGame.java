@@ -1,4 +1,4 @@
-package com.projetoes.roundfight.android;
+package com.projetoes.roundfight;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;

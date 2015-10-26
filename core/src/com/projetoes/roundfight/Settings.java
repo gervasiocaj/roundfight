@@ -1,4 +1,4 @@
-package com.projetoes.roundfight.android;
+package com.projetoes.roundfight;
 
 /**
  * Created by Gervasio on 4/6/2015.
