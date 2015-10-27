@@ -80,8 +80,6 @@ public class GameStage extends Stage {
                 if (vibrate) Gdx.input.vibrate(100);
                 gamePaused = !gamePaused;
                 opcoesPause();
-
-                //pausar();
             }
         });
 
