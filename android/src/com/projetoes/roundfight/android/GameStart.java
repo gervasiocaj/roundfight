@@ -11,12 +11,10 @@ public class GameStart extends ScreenAdapter {
 
     private final MyGdxGame game;
     private final GameStage stage;
-    protected boolean vibrate;
 
-    public GameStart(MyGdxGame game, boolean vibrate, int estagio) {
+    public GameStart(MyGdxGame game, int estagio) {
         this.game = game;
-        this.vibrate = vibrate;
-        this.stage = new GameStage(game, vibrate, estagio);
+        this.stage = new GameStage(game, estagio);
     }
 
     @Override

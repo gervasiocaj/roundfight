@@ -2,7 +2,10 @@ package com.projetoes.roundfight.android;
 
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
+import android.util.Log;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Net;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
@@ -18,18 +21,56 @@ import java.io.IOException;
 public class WebClient {
 
     private static final String SERVER_URL = "http://roundfight-server-v2.herokuapp.com";
-    private OkHttpClient client = new OkHttpClient();
-    private ProgressDialog pDialog;
+    private static final OkHttpClient client = new OkHttpClient();
 
-    protected boolean checkConnection() {
+    protected static boolean checkConnection2() {
+        Log.i("roundfight", "checkConnection2");
+        AndroidLauncher.startLoadingAnimation("Verifying connection...");
+        final String[] c = new String[1];
+
+        Net.HttpRequest a = new Net.HttpRequest();
+        a.setMethod(Net.HttpMethods.GET);
+        a.setUrl(SERVER_URL);
+        Net.HttpResponseListener b = new Net.HttpResponseListener() {
+            @Override
+            public void handleHttpResponse(Net.HttpResponse httpResponse) {
+                c[0] = httpResponse.getResultAsString();
+                Log.i("rf2", c[0]);
+                AndroidLauncher.stopLoadingAnimation();
+            }
+
+            @Override
+            public void failed(Throwable t) {
+                Log.i("rf2", "fecking failed ");
+                t.printStackTrace();
+                AndroidLauncher.stopLoadingAnimation();
+            }
+
+            @Override
+            public void cancelled() {
+                Log.i("rf2", "fecking canceled");
+                AndroidLauncher.stopLoadingAnimation();
+            }
+        };
+        Gdx.net.sendHttpRequest(a, b);
+        return c[0] != null;
+    }
+
+    protected static boolean checkConnection() {
+        Log.i("roundfight", "checkConnection");
+        AndroidLauncher.startLoadingAnimation("Verifying connection...");
         try {
-            return new AccessWeb().execute(SERVER_URL).get() == null;
+            Object res = new AccessWeb().execute(SERVER_URL).get();
+            AndroidLauncher.stopLoadingAnimation();
+            return res != null;
         } catch (Exception e) {
         }
+        AndroidLauncher.stopLoadingAnimation();
         return false;
     }
 
     protected JSONArray getLeaderboard() {
+        AndroidLauncher.startLoadingAnimation("Loading leaderboards...");
         try {
             String leaderboard = new AccessWeb().execute(SERVER_URL + "/leaderboard").get();
             return new JSONArray(leaderboard);
@@ -39,6 +80,7 @@ public class WebClient {
     }
 
     protected JSONArray getLeaderboard(String user) {
+        AndroidLauncher.startLoadingAnimation("Loading your position on the leaderboards...");
         try {
             String leaderboard = new AccessWeb().execute(SERVER_URL + "/leaderboard/" + user).get();
             return new JSONArray(leaderboard);
@@ -47,19 +89,23 @@ public class WebClient {
         return new JSONArray();
     }
 
-    protected JSONObject getMultiplier() {
+    protected static JSONObject getMultiplier() {
+        AndroidLauncher.startLoadingAnimation("Obtaining your multiplier...");
         if (!AndroidLauncher.gps.canGetLocation())
             return null;
         try {
             String url = SERVER_URL + "/multiplier/" + AndroidLauncher.gps.getLatitude() + "/" + AndroidLauncher.gps.getLongitude();
             String result = new AccessWeb().execute(url).get();
+            AndroidLauncher.stopLoadingAnimation();
             return new JSONObject(result);
         } catch (Exception e) {
         }
+        AndroidLauncher.stopLoadingAnimation();
         return null;
     }
 
     protected boolean postScore(String user, String points) {
+        AndroidLauncher.startLoadingAnimation("Updating your highscore on the leaderboards...");
         try {
             return new AccessWeb().execute(SERVER_URL + "/" + user + "/" + points).get() != null;
         } catch (Exception e){
@@ -67,7 +113,7 @@ public class WebClient {
         return false;
     }
 
-    private String getServer(String url) {
+    private static String getServer(String url) {
         String result = null;
         Request request = new Request.Builder().url(url).build();
         try {
@@ -78,18 +124,18 @@ public class WebClient {
         return result;
     }
 
-    private class AccessWeb extends AsyncTask<String, Void, String> {
+    private static class AccessWeb extends AsyncTask<String, Void, String> {
 
         @Override
         protected void onPreExecute() {
-            pDialog = ProgressDialog.show(AndroidLauncher.context, "Loading...", "Conneccting, please wait...", false, false);
+            Log.i("rf2", "preexecute");
         }
 
         @Override
         protected String doInBackground(String... params) {
+            Log.i("rf2", "do in bg");
             String url = params[0];
             String result = getServer(url);
-            pDialog.dismiss();
             return result;
         }
 
@@ -98,5 +144,4 @@ public class WebClient {
             // TODO
         }
     }
-
 }

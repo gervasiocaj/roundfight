@@ -20,38 +20,40 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.LinkedList;
 import java.util.Random;
 
 public class GameStage extends Stage {
 
+    public static final float CONSTANTE_DE_ATRITO = 1800f;
     private Table table;
     private Stage stage;
-    private Body ball;
+    private Body bolaJogador;
     private MyGdxGame game;
     private World world;
     private ShapeRenderer renderer;
     private OrthographicCamera camera;
-    private LinkedList<Body> bolasInimigas;
-    private Label labelTitle;
+    private LinkedList<Body> bolasInimigas, bolasRemover;
+    private Label labelTitle, labelHighscore, labelLocation;
     private Label.LabelStyle labelStyle;
     private TextButton.TextButtonStyle textButtonStyle;
+
     private TextButton buttonPause, buttonDash, buttonBack, buttonBackMenu, buttonNewGame, buttonNextStage;
 
     boolean gamePaused = false;
-    boolean vibrate = false;
-
     private int estagioPontuacao;
-    private int corBolasEstagio;
 
+    private int corBolasEstagio;
     private static final float ARENA_X = -0.5f;
     private static final float ARENA_Y = -0.3f;
     private static final Random random = new Random();
     private static final Color[] cores = {Color.GREEN, Color.NAVY, Color.BLUE, Color.CYAN, Color.MAROON, Color.MAGENTA, Color.OLIVE, Color.ORANGE, Color.PINK, Color.RED, Color.YELLOW};
 
-    public GameStage(final MyGdxGame game, final boolean vibrate, int estagioPontuacao) {
+    public GameStage(final MyGdxGame game, int estagioPontuacao) {
         this.game = game;
-        this.vibrate = vibrate;
         this.estagioPontuacao = estagioPontuacao;
         this.corBolasEstagio = random.nextInt(cores.length);
 
@@ -70,14 +72,14 @@ public class GameStage extends Stage {
         camera = new OrthographicCamera(1.3f, 1.3f * Gdx.graphics.getHeight() / (Gdx.graphics.getWidth() * 1f));
 
         bolasInimigas = new LinkedList<Body>();
+        bolasRemover = new LinkedList<Body>();
         criarBolas(world, estagioPontuacao);
-        // TextureData arena = Assets.background.getTextureData(); TODO carla, favor olhar
 
         buttonPause = new TextButton("||", textButtonStyle);
         buttonPause.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if (vibrate) Gdx.input.vibrate(100);
+                Settings.vibrateAndBeepIfAvailable();
                 gamePaused = !gamePaused;
                 opcoesPause();
             }
@@ -87,8 +89,8 @@ public class GameStage extends Stage {
         buttonDash.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if (vibrate) Gdx.input.vibrate(100);
-                dash(ball);
+                Settings.wooshSound();
+                dash(bolaJogador);
             }
         });
 
@@ -114,9 +116,9 @@ public class GameStage extends Stage {
     public void configuracaoFonteTextos() {
         // Por enquanto, tamanho das fontes pequeno
         labelStyle = new Label.LabelStyle(); // estilo do titulo
-        labelStyle.font = Assets.font_small; // fonte pequena que foi gerada
+        labelStyle.font = Assets.font_medium; // fonte media que foi gerada
         textButtonStyle = new TextButton.TextButtonStyle(); // estilo dos botoes
-        textButtonStyle.font = Assets.font_small; // fonte pequena que foi gerada
+        textButtonStyle.font = Assets.font_medium; // fonte media que foi gerada
     }
 
     public void criaTabela() {
@@ -129,7 +131,7 @@ public class GameStage extends Stage {
 
     void criarBolas(World world, int quantidade) {
         final float minX = -0.3f, maxX = 0.3f;
-        ball = Assets.createBall(world, 0, 0); // cria uma nova bola neste mundo
+        bolaJogador = Assets.createBall(world, 0, 0); // cria uma nova bola neste mundo
         for (int i=0; i<quantidade; i++) {
             float posX = (maxX - minX) * random.nextFloat() + minX;
             float posY = (maxX - minX) * random.nextFloat() + minX;
@@ -138,18 +140,24 @@ public class GameStage extends Stage {
     }
 
     void aplicarForcasBolas() {
-        float inclinacaoX = Gdx.input.getAccelerometerY() / 1200f;
-        float inclinacaoY = -Gdx.input.getAccelerometerX() / 1200f;
-        ball.applyForceToCenter(inclinacaoX, inclinacaoY, true); // aplica a força à bola
+        float inclinacaoX = Gdx.input.getAccelerometerY() / (CONSTANTE_DE_ATRITO - estagioPontuacao * 20);
+        float inclinacaoY = -Gdx.input.getAccelerometerX() / (CONSTANTE_DE_ATRITO - estagioPontuacao * 20);
+        bolaJogador.applyForceToCenter(inclinacaoX, inclinacaoY, true); // aplica a força à bola
 
         for (Body bola : bolasInimigas)
             setNovoAlvoIA(bola); // dá um novo alvo à bola inimiga
+
+        for (Body bola : bolasRemover) {
+            bola.setLinearVelocity(0f,0f);
+            bola.setAngularVelocity(0f);
+        }
+
     }
 
     void setNovoAlvoIA(Body bola) {
         Vector2 posicaoBola, forcaBolaInimiga, velocidadeBolaInimiga;
 
-        posicaoBola = ball.getPosition();
+        posicaoBola = bolaJogador.getPosition();
         forcaBolaInimiga = bola.getPosition();
         forcaBolaInimiga.set(posicaoBola.x - forcaBolaInimiga.x, posicaoBola.y - forcaBolaInimiga.y);
         velocidadeBolaInimiga = bola.getLinearVelocity();
@@ -160,9 +168,7 @@ public class GameStage extends Stage {
     }
 
     void verificarFimDoJogo() {
-        LinkedList<Body> bolasRemover = new LinkedList<Body>();
-        
-        if (saiuDaArena(ball))
+        if (saiuDaArena(bolaJogador))
             mostrarMensagemFim("Try again." + "\n You lost! \n", false); // neste caso, você perdeu.
 
         boolean todosInimigosDerrotados = true;
@@ -173,9 +179,8 @@ public class GameStage extends Stage {
                 todosInimigosDerrotados = false;
         }
 
-        for(Body bola: bolasRemover) {
+        for(Body bola: bolasRemover)
             bolasInimigas.remove(bola);
-        }
 
         if (todosInimigosDerrotados)
             mostrarMensagemFim("Very good!" + "\n You won! \n", true); // neste caso, você ganhou.
@@ -191,7 +196,7 @@ public class GameStage extends Stage {
     void drawBolas(int cor) {
         renderer.begin(ShapeRenderer.ShapeType.Filled);
         renderer.setColor(new Color(255, 255, 255, 0));
-        renderer.circle(ball.getPosition().x, ball.getPosition().y, 0.025f, 100);
+        renderer.circle(bolaJogador.getPosition().x, bolaJogador.getPosition().y, 0.025f, 100);
 
         corBolasInimigas(cor);
 
@@ -203,41 +208,45 @@ public class GameStage extends Stage {
             renderer.setColor(cores[cor]);
             renderer.circle(bola.getPosition().x, bola.getPosition().y, 0.025f, 100);
         }
+        for (Body bola: bolasRemover) {
+            renderer.setColor(Color.DARK_GRAY);
+            renderer.circle(bola.getPosition().x, bola.getPosition().y, 0.025f, 100);
+        }
     }
 
     public void opcoesPause() {
         stage = new Stage();
 
-        labelTitle = new Label("Opçoes", labelStyle);
+        labelTitle = new Label("Options", labelStyle);
         labelTitle.setAlignment(Align.center);
 
-        buttonBackMenu = new TextButton("Desistir do jogo", textButtonStyle);
+        buttonBackMenu = new TextButton("Quit the game", textButtonStyle);
         buttonBackMenu.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if (vibrate) Gdx.input.vibrate(100);
-                game.setScreen(new MainMenuScreen(game, vibrate)); // acao do botao (ir para o Menu principal)
-                // TODO concervar pontuacao
+                Settings.vibrateAndBeepIfAvailable();
+                game.setScreen(new MainMenuScreen(game)); // acao do botao (ir para o Menu principal)
+                // TODO conservar pontuacao
             }
         });
 
-        buttonNewGame = new TextButton("Reiniciar partida", textButtonStyle);
+        buttonNewGame = new TextButton("Restart game", textButtonStyle);
         buttonNewGame.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if (vibrate) Gdx.input.vibrate(100);
-                game.setScreen(new GameStart(game, vibrate, estagioPontuacao)); // acao do botao (iniciar um novo GameStart, com pontuação 1)
+                Settings.vibrateAndBeepIfAvailable();
+                game.setScreen(new GameStart(game, estagioPontuacao)); // acao do botao (iniciar um novo GameStart, com pontuação 1)
             }
         });
 
-        buttonBack = new TextButton("Voltar ao jogo", textButtonStyle);
+        buttonBack = new TextButton("Return to game", textButtonStyle);
         buttonBack.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if (vibrate) Gdx.input.vibrate(100);
+                Settings.vibrateAndBeepIfAvailable();
                 // aqui tem que fazer ele voltar ao jogo (sair da tela q foi criada)
                 pausar();
-                //game.setScreen(new GameStart(game, vibrate, 1)); // acao do botao (iniciar um novo GameStart, com pontuação 1)
+                //game.setScreen(new GameStart(game, 1)); // acao do botao (iniciar um novo GameStart, com pontuação 1)
             }
         });
 
@@ -270,6 +279,13 @@ public class GameStage extends Stage {
         Gdx.input.setInputProcessor(stage);
     }
 
+    float calculaPontuacao(float mult) {
+        int result = 0;
+        for (int i = 1; i <= estagioPontuacao; i++)
+            result += 10*i;
+        return result * mult;
+    }
+
     @Override
     public void act(float delta) {
         if (gamePaused) return;
@@ -297,7 +313,7 @@ public class GameStage extends Stage {
         stage.draw();
 
         if (Gdx.input.isKeyPressed(Input.Keys.BACK))
-            game.setScreen(new MainMenuScreen(game, vibrate)); // TODO mostrar tela de confirmação
+            game.setScreen(new MainMenuScreen(game)); // TODO mostrar tela de confirmação
     }
 
     public void mostrarMensagemFim(String msg, boolean venceu) {
@@ -311,8 +327,8 @@ public class GameStage extends Stage {
         buttonBackMenu.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if (vibrate) Gdx.input.vibrate(100);
-                game.setScreen(new MainMenuScreen(game, vibrate)); // acao do botao (ir para o Menu principal)
+                Settings.vibrateAndBeepIfAvailable();
+                game.setScreen(new MainMenuScreen(game)); // acao do botao (ir para o Menu principal)
             }
         });
 
@@ -320,8 +336,8 @@ public class GameStage extends Stage {
         buttonNewGame.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if (vibrate) Gdx.input.vibrate(100);
-                game.setScreen(new GameStart(game, vibrate, 1)); // acao do botao (iniciar um novo GameStart, com pontuação 1)
+                Settings.vibrateAndBeepIfAvailable();
+                game.setScreen(new GameStart(game, 1)); // acao do botao (iniciar um novo GameStart, com pontuação 1)
             }
         });
 
@@ -329,35 +345,63 @@ public class GameStage extends Stage {
         buttonNextStage.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if (vibrate) Gdx.input.vibrate(100);
-                game.setScreen(new GameStart(game, vibrate, estagioPontuacao + 1)); // acao do botao (ir para uma nova tela de GameStart, incrementando em 1 a pontuação)
+                Settings.vibrateAndBeepIfAvailable();
+                game.setScreen(new GameStart(game, estagioPontuacao + 1)); // acao do botao (ir para uma nova tela de GameStart, incrementando em 1 a pontuação)
             }
         });
 
         criaTabela();
 
+        table.align(Align.center);
         table.add(labelTitle).row();
+
+        if (!venceu)
+            calculaMult();
+
         table.row();
 
-        if (venceu) {
-            // adicionando os botões na tela de vitoria
-            table.add(buttonBackMenu).row();
-            table.row();
-            table.add(buttonNextStage);
-        } else {
-            // adicionando os botões na tela de derrota
-            table.add(buttonBackMenu).row();
-            table.row();
-            table.add(buttonNewGame);
-        }
+        table.add(buttonBackMenu).row();
+        table.row();
+        table.add(venceu ? buttonNextStage : buttonNewGame);
 
         stage.addActor(table); // adiciona no stage
         Gdx.input.setInputProcessor(stage); // adiciona esse stage ao processamento padrao do jogo
 
     }
 
+    private void calculaMult() {
+        float result, mult = 1f, distance = 0f;
+        String location = null;
+        //WebClient.checkConnection2();
+        if (WebClient.checkConnection()) {
+            try {
+                JSONObject jsonResponse = WebClient.getMultiplier();
+                mult = (float) jsonResponse.getDouble("mult");
+                location = jsonResponse.has("local") ? jsonResponse.getString("local") : null;
+                distance = (float) (jsonResponse.has("distance") ? jsonResponse.getDouble("distance") : 0d);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        result = calculaPontuacao(mult);
+
+        if (Settings.prefs.getFloat(Settings.RF_PREFERENCES_HIGHSCORE) < result) { // Usuario superou seu highscore
+            // TODO
+            Settings.prefs.putFloat(Settings.RF_PREFERENCES_HIGHSCORE, result).flush();
+            labelHighscore = new Label("Your new highscore is " + result, labelStyle);
+            labelHighscore.setAlignment(Align.center);
+            table.add(labelHighscore).row();
+            if (location != null) {
+                labelLocation = new Label("Location: " + location + ", distance: " + distance, labelStyle);
+                labelLocation.setAlignment(Align.center);
+                table.add(labelLocation).row();
+            }
+        }
+    }
+
     public void dash(Body obj){
-        com.projetoes.roundfight.android.Dash d = new com.projetoes.roundfight.android.Dash(obj);
+        Dash d = new Dash(obj);
         d.start();
     }
 

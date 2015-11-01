@@ -1,7 +1,5 @@
 package com.projetoes.roundfight.android;
 
-import android.content.SharedPreferences;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
@@ -21,16 +19,11 @@ public class MainMenuScreen extends ScreenAdapter {
     private Stage stage;
     private Label.LabelStyle labelStyle;
     private TextButton.TextButtonStyle textButtonStyle;
-    private TextButton buttonStart, buttonExit, buttonOptions;
-    private TextButton buttonSound, buttonVibrate, buttonHelp, buttonBack;
-    public boolean vibrate = false;
-    protected boolean sound = false;
+    private TextButton buttonStart, buttonExit, buttonOptions, buttonUsername, buttonSound, buttonVibrate, buttonHelp, buttonBack;
 
-    public MainMenuScreen(MyGdxGame game, boolean vibrate) {
+    public MainMenuScreen(MyGdxGame game) {
         this.game = game;
-        this.vibrate = vibrate;
         Gdx.input.setCatchBackKey(true);
-
         configuracaoFonteTextos();
     }
 
@@ -51,23 +44,27 @@ public class MainMenuScreen extends ScreenAdapter {
     }
 
     public void verificaNomeUsuario() {
-        final SharedPreferences.Editor editor = AndroidLauncher.prefs.edit();
-
         TextInputListener inputListener = new TextInputListener() {
             @Override
             public void input(String text) {
-                editor.putString("username", text);
-                editor.commit();
+                if (text == null || text.equals("")) text = "Anonymous";
+                Settings.prefs.putString(Settings.RF_PREFERENCES_USER, text).flush();
+                setTextButtonUsername();
             }
             @Override
             public void canceled() {
-                if (!AndroidLauncher.prefs.contains("username"))
-                    editor.putString("username", null);
-                editor.commit();
+                Settings.prefs.putString(Settings.RF_PREFERENCES_USER, "Anonymous").flush();
+                setTextButtonUsername();
             }
         };
 
-        Gdx.input.getTextInput(inputListener, "Por favor, digite o seu nome", "", "");
+        String title = "Please, enter your name";
+        String text = Settings.prefs.getString(Settings.RF_PREFERENCES_USER);
+        Gdx.input.getTextInput(inputListener, title, text, "");
+    }
+
+    void setTextButtonUsername() {
+        buttonUsername.setText("Change username: " + Settings.prefs.getString(Settings.RF_PREFERENCES_USER));
     }
 
     @Override
@@ -83,9 +80,8 @@ public class MainMenuScreen extends ScreenAdapter {
         super.show();
         stage = new Stage();
 
-        //TODO Falta salvar o nome do jogador. Atualmente ele pede toda vez pq sempre q o MainMenu é iniciado, o nomeJogador recebe ""
-        if(!AndroidLauncher.prefs.contains("username"))
-            verificaNomeUsuario();
+        //if(!prefs.contains(RF_PREFERENCES_USER))
+        //    verificaNomeUsuario();
 
         // titulo
         Label labelTitle = new Label("RoundFight", labelStyle);
@@ -93,23 +89,12 @@ public class MainMenuScreen extends ScreenAdapter {
 
         // botoes
         // --------------------------
-        buttonExit = new TextButton("Exit", textButtonStyle);
-        buttonExit.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                if(vibrate){ Gdx.input.vibrate(100);}
-                Gdx.app.exit(); // acao do botao
-            }
-        });
-
         buttonStart = new TextButton("Start", textButtonStyle);
         buttonStart.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if (vibrate) {
-                    Gdx.input.vibrate(100);
-                }
-                game.setScreen(new com.projetoes.roundfight.android.GameStart(game, vibrate, 1)); // acao do botao (ir para uma nova tela de GameStart)
+                Settings.vibrateAndBeepIfAvailable();
+                game.setScreen(new com.projetoes.roundfight.android.GameStart(game, 1)); // acao do botao (ir para uma nova tela de GameStart)
             }
         });
 
@@ -117,10 +102,17 @@ public class MainMenuScreen extends ScreenAdapter {
         buttonOptions.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if (vibrate) {
-                    Gdx.input.vibrate(100);
-                }
+                Settings.vibrateAndBeepIfAvailable();
                 show2();// acao do botao (ir para uma nova tela de GameStart)
+            }
+        });
+
+        buttonExit = new TextButton("Exit", textButtonStyle);
+        buttonExit.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                Settings.vibrateAndBeepIfAvailable();
+                Gdx.app.exit(); // acao do botao
             }
         });
         // ---------------------------
@@ -148,33 +140,33 @@ public class MainMenuScreen extends ScreenAdapter {
 
         // botoes
         // --------------------------
-        if(sound){
-            buttonSound = new TextButton("Sound On", textButtonStyle);
-        } else{
-            buttonSound = new TextButton("Sound Off", textButtonStyle);
-        }
+
+        buttonSound = new TextButton(Settings.prefs.getBoolean(Settings.RF_PREFERENCES_SOUND) ? "Sound On" : "Sound Off", textButtonStyle);
         buttonSound.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if(vibrate){ Gdx.input.vibrate(100);}
-                sound = !sound;
-                if(sound){
-                }
+                Settings.vibrateAndBeepIfAvailable();
+                Settings.prefs.putBoolean(Settings.RF_PREFERENCES_SOUND, !Settings.prefs.getBoolean(Settings.RF_PREFERENCES_SOUND)).flush();
                 show2();// acao do botao
             }
         });
 
-        if(vibrate){
-            buttonVibrate = new TextButton("Vibrate On", textButtonStyle);
-        }else{
-            buttonVibrate = new TextButton("Vibrate Off", textButtonStyle);
-        }
+        buttonVibrate = new TextButton(Settings.prefs.getBoolean(Settings.RF_PREFERENCES_VIBRATE) ? "Vibrate On" : "Vibrate Off", textButtonStyle);
         buttonVibrate.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                vibrate = !vibrate;
-                if(vibrate){ Gdx.input.vibrate(100);}
+                Settings.prefs.putBoolean(Settings.RF_PREFERENCES_VIBRATE, !Settings.prefs.getBoolean(Settings.RF_PREFERENCES_VIBRATE)).flush();
+                Settings.vibrateAndBeepIfAvailable();
                 show2();
+            }
+        });
+
+        buttonUsername = new TextButton("", textButtonStyle);
+        setTextButtonUsername();
+        buttonUsername.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                verificaNomeUsuario();
             }
         });
 
@@ -182,7 +174,7 @@ public class MainMenuScreen extends ScreenAdapter {
         buttonHelp.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if(vibrate){ Gdx.input.vibrate(100);}
+                Settings.vibrateAndBeepIfAvailable();
                 help();// acao do botao (ir para uma nova tela de GameStart)
             }
         });
@@ -191,12 +183,7 @@ public class MainMenuScreen extends ScreenAdapter {
         buttonBack.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if (vibrate) {
-                    Gdx.input.vibrate(100);
-                }
-                if (sound) {
-
-                }
+                Settings.vibrateAndBeepIfAvailable();
                 show(); // acao do botao (ir para uma nova tela de GameStart)
             }
         });
@@ -208,8 +195,12 @@ public class MainMenuScreen extends ScreenAdapter {
         table.add(labelTitle).row();
         table.add(buttonSound).row();
         table.add(buttonVibrate).row();
+        table.add(buttonUsername).row();
         table.add(buttonHelp).row();
         table.add(buttonBack).row();
+
+        //table.add(new Label(MainMenuScreen.prefs.getString(MainMenuScreen.RF_PREFERENCES_USER), labelStyle)).align(Align.bottomLeft);
+        //table.add(new Label("Highscore: " + MainMenuScreen.prefs.getInteger(MainMenuScreen.RF_PREFERENCES_HIGHSCORE), labelStyle)).align(Align.bottomRight);
 
 
         stage.addActor(table); // adiciona no stage
@@ -236,12 +227,7 @@ public class MainMenuScreen extends ScreenAdapter {
         buttonBack.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if (vibrate) {
-                    Gdx.input.vibrate(100);
-                }
-                if (sound) {
-
-                }
+                Settings.vibrateAndBeepIfAvailable();
                 show2(); // acao do botao (ir para uma nova tela de GameStart)
             }
         });
