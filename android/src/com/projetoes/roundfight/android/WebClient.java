@@ -69,23 +69,27 @@ public class WebClient {
         return false;
     }
 
-    protected JSONArray getLeaderboard() {
+    protected static JSONArray getLeaderboard() {
         AndroidLauncher.startLoadingAnimation("Loading leaderboards...");
         try {
             String leaderboard = new AccessWeb().execute(SERVER_URL + "/leaderboard").get();
+            AndroidLauncher.stopLoadingAnimation();
             return new JSONArray(leaderboard);
         } catch (Exception e) {
         }
+        AndroidLauncher.stopLoadingAnimation();
         return new JSONArray();
     }
 
-    protected JSONArray getLeaderboard(String user) {
+    protected static JSONArray getLeaderboard(String user) {
         AndroidLauncher.startLoadingAnimation("Loading your position on the leaderboards...");
         try {
             String leaderboard = new AccessWeb().execute(SERVER_URL + "/leaderboard/" + user).get();
+            AndroidLauncher.stopLoadingAnimation();
             return new JSONArray(leaderboard);
         } catch (Exception e) {
         }
+        AndroidLauncher.stopLoadingAnimation();
         return new JSONArray();
     }
 
@@ -104,24 +108,26 @@ public class WebClient {
         return null;
     }
 
-    protected boolean postScore(String user, String points) {
+    protected static boolean postScore(String user, float points) {
         AndroidLauncher.startLoadingAnimation("Updating your highscore on the leaderboards...");
         try {
-            return new AccessWeb().execute(SERVER_URL + "/" + user + "/" + points).get() != null;
+            String a = new AccessWeb().execute(SERVER_URL + "/leaderboard/" + user + "/" + Float.toString(points)).get();
+            AndroidLauncher.stopLoadingAnimation();
+            return a != null;
         } catch (Exception e){
         }
+        AndroidLauncher.stopLoadingAnimation();
         return false;
     }
 
     private static String getServer(String url) {
-        String result = null;
         Request request = new Request.Builder().url(url).build();
         try {
             Response response = client.newCall(request).execute();
-            result = response.body().string();
+            return response.body().string();
         } catch (IOException e) {
         }
-        return result;
+        return null;
     }
 
     private static class AccessWeb extends AsyncTask<String, Void, String> {

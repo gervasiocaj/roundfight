@@ -19,7 +19,7 @@ public class MainMenuScreen extends ScreenAdapter {
     private Stage stage;
     private Label.LabelStyle labelStyle;
     private TextButton.TextButtonStyle textButtonStyle;
-    private TextButton buttonStart, buttonExit, buttonOptions, buttonUsername, buttonSound, buttonVibrate, buttonHelp, buttonBack;
+    private TextButton buttonStart, buttonExit, buttonOptions, buttonUsername, buttonLeaderboards, buttonSubmit, buttonSound, buttonVibrate, buttonHelp, buttonLBall, buttonLBuser, buttonBack;
 
     public MainMenuScreen(MyGdxGame game) {
         this.game = game;
@@ -28,11 +28,10 @@ public class MainMenuScreen extends ScreenAdapter {
     }
 
     public void configuracaoFonteTextos() {
-        // configuracao da fonte
         labelStyle = new Label.LabelStyle(); // estilo do titulo
         labelStyle.font = Assets.font_large; // fonte grande que foi gerada
         textButtonStyle = new TextButton.TextButtonStyle(); // estilo dos botoes
-        textButtonStyle.font = Assets.font_medium; // fonte media que foi gerada
+        textButtonStyle.font = Assets.font_medium;
     }
 
     public void criaConfiguraTabela() {
@@ -80,9 +79,6 @@ public class MainMenuScreen extends ScreenAdapter {
         super.show();
         stage = new Stage();
 
-        //if(!prefs.contains(RF_PREFERENCES_USER))
-        //    verificaNomeUsuario();
-
         // titulo
         Label labelTitle = new Label("RoundFight", labelStyle);
         labelTitle.setAlignment(Align.center);
@@ -95,6 +91,15 @@ public class MainMenuScreen extends ScreenAdapter {
             public void clicked(InputEvent event, float x, float y) {
                 Settings.vibrateAndBeepIfAvailable();
                 game.setScreen(new com.projetoes.roundfight.android.GameStart(game, 1)); // acao do botao (ir para uma nova tela de GameStart)
+            }
+        });
+
+        buttonLeaderboards = new TextButton("Leaderboards", textButtonStyle);
+        buttonLeaderboards.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                Settings.vibrateAndBeepIfAvailable();
+                leaderboards();
             }
         });
 
@@ -122,9 +127,9 @@ public class MainMenuScreen extends ScreenAdapter {
         // row significa nova linha, mesma coisa de table.add(labelTitle); table.row(); 
         table.add(labelTitle).row();
         table.add(buttonStart).row();
+        table.add(buttonLeaderboards).row();
         table.add(buttonOptions).row();
         table.add(buttonExit).row();
-
 
         stage.addActor(table); // adiciona no stage
         Gdx.input.setInputProcessor(stage); // adiciona esse stage ao processamento padrao do jogo
@@ -134,12 +139,8 @@ public class MainMenuScreen extends ScreenAdapter {
         super.show();
         stage = new Stage();
 
-        // titulo
         Label labelTitle = new Label("Options", labelStyle);
         labelTitle.setAlignment(Align.center);
-
-        // botoes
-        // --------------------------
 
         buttonSound = new TextButton(Settings.prefs.getBoolean(Settings.RF_PREFERENCES_SOUND) ? "Sound On" : "Sound Off", textButtonStyle);
         buttonSound.addListener(new ClickListener() {
@@ -187,11 +188,9 @@ public class MainMenuScreen extends ScreenAdapter {
                 show(); // acao do botao (ir para uma nova tela de GameStart)
             }
         });
-        // ---------------------------
 
         criaConfiguraTabela();
 
-        // row significa nova linha, mesma coisa de table.add(labelTitle); table.row();
         table.add(labelTitle).row();
         table.add(buttonSound).row();
         table.add(buttonVibrate).row();
@@ -202,16 +201,14 @@ public class MainMenuScreen extends ScreenAdapter {
         //table.add(new Label(MainMenuScreen.prefs.getString(MainMenuScreen.RF_PREFERENCES_USER), labelStyle)).align(Align.bottomLeft);
         //table.add(new Label("Highscore: " + MainMenuScreen.prefs.getInteger(MainMenuScreen.RF_PREFERENCES_HIGHSCORE), labelStyle)).align(Align.bottomRight);
 
-
-        stage.addActor(table); // adiciona no stage
-        Gdx.input.setInputProcessor(stage); // adiciona esse stage ao processamento padrao do jogo
+        stage.addActor(table);
+        Gdx.input.setInputProcessor(stage);
     }
 
     public void help(){
         super.show();
         stage = new Stage();
 
-        // titulo
         Label labelTitle = new Label("Help", labelStyle);
         labelTitle.setAlignment(Align.center);
 
@@ -220,8 +217,6 @@ public class MainMenuScreen extends ScreenAdapter {
                 "\n Tilt your device to move the ball." + 
                 "\n Press the >>> button to dash.", labelStyle);
         labelTitle2.setAlignment(Align.center);
-        // botoes
-        // --------------------------
 
         buttonBack = new TextButton("<", textButtonStyle);
         buttonBack.addListener(new ClickListener() {
@@ -231,13 +226,73 @@ public class MainMenuScreen extends ScreenAdapter {
                 show2(); // acao do botao (ir para uma nova tela de GameStart)
             }
         });
+
+        criaConfiguraTabela();
+
+        table.add(labelTitle).row();
+        table.add(labelTitle2).row();
+        table.add(buttonBack).row();
+
+        stage.addActor(table);
+        Gdx.input.setInputProcessor(stage);
+    }
+
+    public void leaderboards() {
+        super.show();
+        stage = new Stage();
+
+        // titulo
+        Label labelTitle = new Label("Leaderboards", labelStyle);
+        labelTitle.setAlignment(Align.center);
+
+        // botoes
+        // --------------------------
+        buttonLBall = new TextButton("Top leaderboards", textButtonStyle);
+        buttonLBall.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                Settings.vibrateAndBeepIfAvailable();
+                // TODO abrir lista todos
+                JSONArray b = WebClient.getLeaderboard();
+                Log.i("rf2", b.toString());
+            }
+        });
+        buttonLBuser = new TextButton("User leaderboards", textButtonStyle);
+        buttonLBuser.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                Settings.vibrateAndBeepIfAvailable();
+                // TODO abrir lista user
+                JSONArray a = WebClient.getLeaderboard(Settings.prefs.getString(Settings.RF_PREFERENCES_USER));
+                Log.i("rf2", a.toString());
+            }
+        });
+        buttonSubmit = new TextButton("Submit my highscore", textButtonStyle);
+        buttonSubmit.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                Settings.vibrateAndBeepIfAvailable();
+                WebClient.postScore(Settings.prefs.getString(Settings.RF_PREFERENCES_USER), Settings.prefs.getFloat(Settings.RF_PREFERENCES_HIGHSCORE));
+
+            }
+        });
+        buttonBack = new TextButton("<", textButtonStyle);
+        buttonBack.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                Settings.vibrateAndBeepIfAvailable();
+                show(); // acao do botao (ir para uma nova tela de GameStart)
+            }
+        });
         // ---------------------------
 
         criaConfiguraTabela();
 
         // row significa nova linha, mesma coisa de table.add(labelTitle); table.row();
         table.add(labelTitle).row();
-        table.add(labelTitle2).row();
+        table.add(buttonLBall).row();
+        table.add(buttonLBuser).row();
+        table.add(buttonSubmit).row();
         table.add(buttonBack).row();
 
         stage.addActor(table); // adiciona no stage
