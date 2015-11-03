@@ -28,11 +28,10 @@ public class MainMenuScreen extends ScreenAdapter {
     }
 
     public void configuracaoFonteTextos() {
-        // configuracao da fonte
         labelStyle = new Label.LabelStyle(); // estilo do titulo
         labelStyle.font = Assets.font_large; // fonte grande que foi gerada
         textButtonStyle = new TextButton.TextButtonStyle(); // estilo dos botoes
-        textButtonStyle.font = Assets.font_medium; // fonte media que foi gerada
+        textButtonStyle.font = Assets.font_medium;
     }
 
     public void criaConfiguraTabela() {
@@ -79,9 +78,6 @@ public class MainMenuScreen extends ScreenAdapter {
     public void show() {
         super.show();
         stage = new Stage();
-
-        //if(!prefs.contains(RF_PREFERENCES_USER))
-        //    verificaNomeUsuario();
 
         // titulo
         Label labelTitle = new Label("RoundFight", labelStyle);
@@ -134,12 +130,8 @@ public class MainMenuScreen extends ScreenAdapter {
         super.show();
         stage = new Stage();
 
-        // titulo
         Label labelTitle = new Label("Options", labelStyle);
         labelTitle.setAlignment(Align.center);
-
-        // botoes
-        // --------------------------
 
         buttonSound = new TextButton(Settings.prefs.getBoolean(Settings.RF_PREFERENCES_SOUND) ? "Sound On" : "Sound Off", textButtonStyle);
         buttonSound.addListener(new ClickListener() {
@@ -187,11 +179,9 @@ public class MainMenuScreen extends ScreenAdapter {
                 show(); // acao do botao (ir para uma nova tela de GameStart)
             }
         });
-        // ---------------------------
 
         criaConfiguraTabela();
 
-        // row significa nova linha, mesma coisa de table.add(labelTitle); table.row();
         table.add(labelTitle).row();
         table.add(buttonSound).row();
         table.add(buttonVibrate).row();
@@ -202,16 +192,14 @@ public class MainMenuScreen extends ScreenAdapter {
         //table.add(new Label(MainMenuScreen.prefs.getString(MainMenuScreen.RF_PREFERENCES_USER), labelStyle)).align(Align.bottomLeft);
         //table.add(new Label("Highscore: " + MainMenuScreen.prefs.getInteger(MainMenuScreen.RF_PREFERENCES_HIGHSCORE), labelStyle)).align(Align.bottomRight);
 
-
-        stage.addActor(table); // adiciona no stage
-        Gdx.input.setInputProcessor(stage); // adiciona esse stage ao processamento padrao do jogo
+        stage.addActor(table);
+        Gdx.input.setInputProcessor(stage);
     }
 
     public void help(){
         super.show();
         stage = new Stage();
 
-        // titulo
         Label labelTitle = new Label("Help", labelStyle);
         labelTitle.setAlignment(Align.center);
 
@@ -220,8 +208,6 @@ public class MainMenuScreen extends ScreenAdapter {
                 "\n Tilt your device to move the ball." + 
                 "\n Press the >>> button to dash.", labelStyle);
         labelTitle2.setAlignment(Align.center);
-        // botoes
-        // --------------------------
 
         buttonBack = new TextButton("<", textButtonStyle);
         buttonBack.addListener(new ClickListener() {
@@ -231,16 +217,14 @@ public class MainMenuScreen extends ScreenAdapter {
                 show2(); // acao do botao (ir para uma nova tela de GameStart)
             }
         });
-        // ---------------------------
 
         criaConfiguraTabela();
 
-        // row significa nova linha, mesma coisa de table.add(labelTitle); table.row();
         table.add(labelTitle).row();
         table.add(labelTitle2).row();
         table.add(buttonBack).row();
 
-        stage.addActor(table); // adiciona no stage
-        Gdx.input.setInputProcessor(stage); // adiciona esse stage ao processamento padrao do jogo
+        stage.addActor(table);
+        Gdx.input.setInputProcessor(stage);
     }
 }

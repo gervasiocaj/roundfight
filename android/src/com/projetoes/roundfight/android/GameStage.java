@@ -58,9 +58,19 @@ public class GameStage extends Stage {
         this.corBolasEstagio = random.nextInt(cores.length);
 
         configuracaoFonteTextos();
+        inicializaVariaveis();
+        criarBolas(world, estagioPontuacao);
+        showStage();
+    }
 
-        // OBS: QUANDO FOR REFATORAR, LEMBRAR DE CRIAR UM METODO INICIALIZA() E COLOCAR ESSAS INSTANCIAS NELE
+    public void configuracaoFonteTextos() {
+        labelStyle = new Label.LabelStyle(); // estilo do titulo
+        labelStyle.font = Assets.font_medium; // fonte media que foi gerada
+        textButtonStyle = new TextButton.TextButtonStyle(); // estilo dos botoes
+        textButtonStyle.font = Assets.font_medium;
+    }
 
+    public void inicializaVariaveis() {
         Gdx.input.setInputProcessor(null); // para sobrescrever os ClickListeners da classe MainMenuScreen
         world = new World(new Vector2(0, 0), true);
         renderer = new ShapeRenderer();
@@ -73,8 +83,9 @@ public class GameStage extends Stage {
 
         bolasInimigas = new LinkedList<Body>();
         bolasRemover = new LinkedList<Body>();
-        criarBolas(world, estagioPontuacao);
+    }
 
+    public void showStage() {
         buttonPause = new TextButton("||", textButtonStyle);
         buttonPause.addListener(new ClickListener() {
             @Override
@@ -94,8 +105,6 @@ public class GameStage extends Stage {
             }
         });
 
-
-        // estagio
         Label labelEstagio = new Label("Estagio: " + String.valueOf(estagioPontuacao), labelStyle);
         labelEstagio.setAlignment(Align.center);
 
@@ -111,14 +120,6 @@ public class GameStage extends Stage {
         stage = new Stage();
         stage.addActor(table);
         Gdx.input.setInputProcessor(stage);
-    }
-
-    public void configuracaoFonteTextos() {
-        // Por enquanto, tamanho das fontes pequeno
-        labelStyle = new Label.LabelStyle(); // estilo do titulo
-        labelStyle.font = Assets.font_medium; // fonte media que foi gerada
-        textButtonStyle = new TextButton.TextButtonStyle(); // estilo dos botoes
-        textButtonStyle.font = Assets.font_medium; // fonte media que foi gerada
     }
 
     public void criaTabela() {
@@ -235,7 +236,7 @@ public class GameStage extends Stage {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 Settings.vibrateAndBeepIfAvailable();
-                game.setScreen(new GameStart(game, estagioPontuacao)); // acao do botao (iniciar um novo GameStart, com pontuação 1)
+                game.setScreen(new GameStart(game, estagioPontuacao)); // acao do botao (iniciar um novo GameStart)
             }
         });
 
@@ -244,9 +245,7 @@ public class GameStage extends Stage {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 Settings.vibrateAndBeepIfAvailable();
-                // aqui tem que fazer ele voltar ao jogo (sair da tela q foi criada)
                 pausar();
-                //game.setScreen(new GameStart(game, 1)); // acao do botao (iniciar um novo GameStart, com pontuação 1)
             }
         });
 
@@ -290,8 +289,7 @@ public class GameStage extends Stage {
     public void act(float delta) {
         if (gamePaused) return;
         super.act(delta);
-        world.step(1 / 45f, 6, 2);
-        // com que frequência a tela é atualizada, 45 frames por segundo. Esses valores 6 e 2 são "padroes" para android.
+        world.step(1 / 45f, 6, 2); // com que frequência a tela é atualizada, 45 frames por segundo. Esses valores 6 e 2 são "padroes" para android.
 
         aplicarForcasBolas();
         verificarFimDoJogo();
