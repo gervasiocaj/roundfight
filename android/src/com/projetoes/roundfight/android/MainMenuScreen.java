@@ -1,5 +1,7 @@
 package com.projetoes.roundfight.android;
 
+import android.util.Log;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
@@ -8,6 +10,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.Input.TextInputListener;
+
+import org.json.JSONArray;
 
 /**
  * Created by Gervasio on 4/6/2015.
@@ -29,7 +33,7 @@ public class MainMenuScreen extends ScreenAdapter {
 
     public void configuracaoFonteTextos() {
         labelStyle = new Label.LabelStyle(); // estilo do titulo
-        labelStyle.font = Assets.font_large; // fonte grande que foi gerada
+        labelStyle.font = Assets.font_medium; // fonte grande que foi gerada
         textButtonStyle = new TextButton.TextButtonStyle(); // estilo dos botoes
         textButtonStyle.font = Assets.font_medium;
     }
@@ -39,6 +43,7 @@ public class MainMenuScreen extends ScreenAdapter {
         table = new Table();
         table.setFillParent(true);
         table.align(Align.center);
+        //table.debug();
         table.defaults().size(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 6);
     }
 
@@ -83,6 +88,15 @@ public class MainMenuScreen extends ScreenAdapter {
         Label labelTitle = new Label("RoundFight", labelStyle);
         labelTitle.setAlignment(Align.center);
 
+        Label.LabelStyle style = new Label.LabelStyle(); // estilo do titulo
+        style.font = Assets.font_small;
+
+        Label labelHighscore = new Label(String.format("Highscore: %.0f", Settings.prefs.getFloat(Settings.RF_PREFERENCES_HIGHSCORE, 0f)), style);
+        labelHighscore.setAlignment(Align.top);
+
+        Label labelUser = new Label(String.format("User: %s", Settings.prefs.getString(Settings.RF_PREFERENCES_USER, "Anonymous")), style);
+        labelUser.setAlignment(Align.top);
+
         // botoes
         // --------------------------
         buttonStart = new TextButton("Start", textButtonStyle);
@@ -124,11 +138,19 @@ public class MainMenuScreen extends ScreenAdapter {
 
        criaConfiguraTabela();
 
-        // row significa nova linha, mesma coisa de table.add(labelTitle); table.row(); 
-        table.add(labelTitle).row();
+        // row significa nova linha, mesma coisa de table.add(labelTitle); table.row();
+
+        table.add(labelHighscore).expandX();
+        table.add(labelTitle).expandX();
+        table.add(labelUser).expandX().row();
+
+        table.add();
         table.add(buttonStart).row();
+        table.add();
         table.add(buttonLeaderboards).row();
+        table.add();
         table.add(buttonOptions).row();
+        table.add();
         table.add(buttonExit).row();
 
         stage.addActor(table); // adiciona no stage
@@ -198,9 +220,6 @@ public class MainMenuScreen extends ScreenAdapter {
         table.add(buttonHelp).row();
         table.add(buttonBack).row();
 
-        //table.add(new Label(MainMenuScreen.prefs.getString(MainMenuScreen.RF_PREFERENCES_USER), labelStyle)).align(Align.bottomLeft);
-        //table.add(new Label("Highscore: " + MainMenuScreen.prefs.getInteger(MainMenuScreen.RF_PREFERENCES_HIGHSCORE), labelStyle)).align(Align.bottomRight);
-
         stage.addActor(table);
         Gdx.input.setInputProcessor(stage);
     }
@@ -212,10 +231,17 @@ public class MainMenuScreen extends ScreenAdapter {
         Label labelTitle = new Label("Help", labelStyle);
         labelTitle.setAlignment(Align.center);
 
+        Label.LabelStyle helpLabelStyle = new Label.LabelStyle(); // estilo do titulo
+        helpLabelStyle.font = Assets.font_small; // fonte grande que foi gerada
+
         Label labelTitle2 = new Label("\nYou need to defeat your enemies," +
-                "\n throwing them out of the arena." +
-                "\n Tilt your device to move the ball." + 
-                "\n Press the >>> button to dash.", labelStyle);
+                "\nthrowing them out of the arena." +
+                "\nTilt your device to move the ball." +
+                "\nPress the >>> button to dash." +
+                "\n\nEverytime you finish a game, " +
+                "\nyour highscore will be calculated." +
+                "\nGo to locations with multipliers to" +
+                "\ngather even more points!", helpLabelStyle);
         labelTitle2.setAlignment(Align.center);
 
         buttonBack = new TextButton("<", textButtonStyle);
@@ -230,7 +256,9 @@ public class MainMenuScreen extends ScreenAdapter {
         criaConfiguraTabela();
 
         table.add(labelTitle).row();
+        table.add(new Label("", labelStyle)).row();
         table.add(labelTitle2).row();
+        table.add(new Label("", labelStyle)).row();
         table.add(buttonBack).row();
 
         stage.addActor(table);

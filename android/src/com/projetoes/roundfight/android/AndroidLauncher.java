@@ -11,17 +11,18 @@ import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
 
 public class AndroidLauncher extends AndroidApplication {
 	public static GPSManager gps;
-	public static Context context;
     private static ProgressDialog pDialog;
+    public static Context context;
     public static Activity ui;
 
     @Override
 	protected void onCreate (Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		gps = new GPSManager(this);
-		context = this;
         ui = this;
+        context = this;
+        gps = new GPSManager();
+
         pDialog = new ProgressDialog(this);
         pDialog.setTitle("Loading");
         pDialog.setIndeterminate(false);

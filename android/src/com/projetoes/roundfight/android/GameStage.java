@@ -4,6 +4,8 @@ package com.projetoes.roundfight.android;
  * Created by asus on 17/10/2015.
  */
 
+import android.util.Log;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
@@ -370,16 +372,21 @@ public class GameStage extends Stage {
     private void calculaMult() {
         float result, mult = 1f, distance = 0f;
         String location = null;
-        //WebClient.checkConnection2();
-        if (WebClient.checkConnection()) {
-            try {
+
+        GPSManager.updateVars();
+
+        try {
+            if (GPSManager.isInternetEnabled && (GPSManager.isGPSEnabled || GPSManager.isNetworkEnabled)) {
                 JSONObject jsonResponse = WebClient.getMultiplier();
-                mult = (float) jsonResponse.getDouble("mult");
-                location = jsonResponse.has("local") ? jsonResponse.getString("local") : null;
-                distance = (float) (jsonResponse.has("distance") ? jsonResponse.getDouble("distance") : 0d);
-            } catch (JSONException e) {
-                e.printStackTrace();
+                if (jsonResponse != null) {
+                    Log.i("rf2", "jsonResponse != null");
+                    mult = (float) jsonResponse.getDouble("mult");
+                    location = jsonResponse.has("local") ? jsonResponse.getString("local") : null;
+                    distance = (float) (jsonResponse.has("distance") ? jsonResponse.getDouble("distance") : 0d);
+                }
             }
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
 
         result = calculaPontuacao(mult);
@@ -387,11 +394,25 @@ public class GameStage extends Stage {
         if (Settings.prefs.getFloat(Settings.RF_PREFERENCES_HIGHSCORE) < result) { // Usuario superou seu highscore
             // TODO
             Settings.prefs.putFloat(Settings.RF_PREFERENCES_HIGHSCORE, result).flush();
-            labelHighscore = new Label("Your new highscore is " + result, labelStyle);
+            labelHighscore = new Label(String.format("Your new highscore is %.0f", result), labelStyle);
             labelHighscore.setAlignment(Align.center);
             table.add(labelHighscore).row();
+            labelLocation = new Label("", labelStyle);
+
+            if (!GPSManager.isGPSEnabled && !GPSManager.isNetworkEnabled)
+                labelLocation.setText("Cannot get location, please turn your GPS on");
+
+            if (!GPSManager.isInternetEnabled)
+                labelLocation.setText("Cannot go online, please connect to a network");
+
+            if (location != null)
+                labelLocation.setText(String.format("Location: %s, distance: %.0f m", location, distance));
+
+            labelLocation.setAlignment(Align.center);
+            table.add(labelLocation).row();
+        } else {
             if (location != null) {
-                labelLocation = new Label("Location: " + location + ", distance: " + distance, labelStyle);
+                labelLocation = new Label(String.format("You can go to %s \nand multiply your points", location), labelStyle);
                 labelLocation.setAlignment(Align.center);
                 table.add(labelLocation).row();
             }

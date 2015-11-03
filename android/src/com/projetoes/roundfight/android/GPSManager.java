@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
@@ -16,10 +17,7 @@ import android.widget.Toast;
  */
 public class GPSManager extends Service implements LocationListener {
 
-    private final Context mContext;
-
-    boolean isGPSEnabled = false;
-    boolean isNetworkEnabled = false;
+    public static boolean isGPSEnabled = false, isNetworkEnabled = false, isInternetEnabled = false;
     boolean canGetLocation = false;
     Location location;
     double latitude;
@@ -27,11 +25,20 @@ public class GPSManager extends Service implements LocationListener {
 
     private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 10;
     private static final long MIN_TIME_FOR_UPDATES = 1000*60*1;
-    protected LocationManager locationManager;
+    protected static LocationManager locationManager;
+    protected static ConnectivityManager connectivityManager;
 
-    public GPSManager(Context mContext) {
-        this.mContext = mContext;
+    public GPSManager() {
+        updateVars();
         getLocation();
+    }
+
+    public static void updateVars() {
+        locationManager = (LocationManager) AndroidLauncher.ui.getSystemService(LOCATION_SERVICE);
+        connectivityManager = (ConnectivityManager) AndroidLauncher.ui.getSystemService(Context.CONNECTIVITY_SERVICE);
+        isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        isNetworkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+        isInternetEnabled = connectivityManager.getActiveNetworkInfo() != null;
     }
 
     @Override
@@ -61,12 +68,8 @@ public class GPSManager extends Service implements LocationListener {
 
     public Location getLocation() {
         try {
-            locationManager = (LocationManager) mContext.getSystemService(LOCATION_SERVICE);
-            isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-            isNetworkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-
             if (!isGPSEnabled && !isNetworkEnabled) {
-                Toast.makeText(mContext, "No Internet or GPS connection", Toast.LENGTH_SHORT).show();
+                Toast.makeText(AndroidLauncher.ui, "No Internet or GPS connection", Toast.LENGTH_LONG).show();
             } else {
                 this.canGetLocation = true;
                 if (isNetworkEnabled) {
