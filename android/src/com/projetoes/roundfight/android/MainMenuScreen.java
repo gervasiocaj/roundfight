@@ -12,6 +12,8 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.Input.TextInputListener;
 
 import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * Created by Gervasio on 4/6/2015.
@@ -19,32 +21,10 @@ import org.json.JSONArray;
 public class MainMenuScreen extends ScreenAdapter {
 
     private final MyGdxGame game;
-    private Table table;
-    private Stage stage;
-    private Label.LabelStyle labelStyle;
-    private TextButton.TextButtonStyle textButtonStyle;
-    private TextButton buttonStart, buttonExit, buttonOptions, buttonUsername, buttonLeaderboards, buttonSubmit, buttonSound, buttonVibrate, buttonHelp, buttonLBall, buttonLBuser, buttonBack;
 
     public MainMenuScreen(MyGdxGame game) {
         this.game = game;
         Gdx.input.setCatchBackKey(true);
-        configuracaoFonteTextos();
-    }
-
-    public void configuracaoFonteTextos() {
-        labelStyle = new Label.LabelStyle(); // estilo do titulo
-        labelStyle.font = Assets.font_medium; // fonte grande que foi gerada
-        textButtonStyle = new TextButton.TextButtonStyle(); // estilo dos botoes
-        textButtonStyle.font = Assets.font_medium;
-    }
-
-    public void criaConfiguraTabela() {
-        // disposicao dos elementos na tela
-        table = new Table();
-        table.setFillParent(true);
-        table.align(Align.center);
-        //table.debug();
-        table.defaults().size(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 6);
     }
 
     public void verificaNomeUsuario() {
@@ -53,12 +33,12 @@ public class MainMenuScreen extends ScreenAdapter {
             public void input(String text) {
                 if (text == null || text.equals("")) text = "Anonymous";
                 Settings.prefs.putString(Settings.RF_PREFERENCES_USER, text).flush();
-                setTextButtonUsername();
+                show2();
             }
             @Override
             public void canceled() {
                 Settings.prefs.putString(Settings.RF_PREFERENCES_USER, "Anonymous").flush();
-                setTextButtonUsername();
+                show2();
             }
         };
 
@@ -67,185 +47,131 @@ public class MainMenuScreen extends ScreenAdapter {
         Gdx.input.getTextInput(inputListener, title, text, "");
     }
 
-    void setTextButtonUsername() {
-        buttonUsername.setText("Change username: " + Settings.prefs.getString(Settings.RF_PREFERENCES_USER));
-    }
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(0,0,0,1);
+        Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        stage.act(delta);
-        stage.draw(); // TODO
+
+        ScreenBuilder.actAndDrawStage(delta);
     }
 
     @Override
     public void show() {
         super.show();
-        stage = new Stage();
+        ScreenBuilder screenBuilder = new ScreenBuilder(ScreenBuilder.Size.MEDIUM);
 
-        // titulo
-        Label labelTitle = new Label("RoundFight", labelStyle);
-        labelTitle.setAlignment(Align.center);
+        screenBuilder.addLabel(String.format("Highscore: %.0f", Settings.prefs.getFloat(Settings.RF_PREFERENCES_HIGHSCORE, 0f)), ScreenBuilder.Size.SMALL, Align.top).expandX();
+        screenBuilder.addLabel("RoundFight", ScreenBuilder.Size.LARGE, Align.center).expandX();
+        screenBuilder.addLabel(String.format("User: %s", Settings.prefs.getString(Settings.RF_PREFERENCES_USER, "Anonymous")), ScreenBuilder.Size.SMALL, Align.top).expandX().row();
 
-        Label.LabelStyle style = new Label.LabelStyle(); // estilo do titulo
-        style.font = Assets.font_small;
-
-        Label labelHighscore = new Label(String.format("Highscore: %.0f", Settings.prefs.getFloat(Settings.RF_PREFERENCES_HIGHSCORE, 0f)), style);
-        labelHighscore.setAlignment(Align.top);
-
-        Label labelUser = new Label(String.format("User: %s", Settings.prefs.getString(Settings.RF_PREFERENCES_USER, "Anonymous")), style);
-        labelUser.setAlignment(Align.top);
-
-        // botoes
-        // --------------------------
-        buttonStart = new TextButton("Start", textButtonStyle);
-        buttonStart.addListener(new ClickListener() {
+        screenBuilder.table().add();
+        screenBuilder.addButton("Start", new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 Settings.vibrateAndBeepIfAvailable();
                 game.setScreen(new com.projetoes.roundfight.android.GameStart(game, 1)); // acao do botao (ir para uma nova tela de GameStart)
             }
-        });
+        }).row();
 
-        buttonLeaderboards = new TextButton("Leaderboards", textButtonStyle);
-        buttonLeaderboards.addListener(new ClickListener() {
+        screenBuilder.table().add();
+        screenBuilder.addButton("Leaderboards", new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 Settings.vibrateAndBeepIfAvailable();
                 leaderboards();
             }
-        });
+        }).row();
 
-        buttonOptions = new TextButton("Options", textButtonStyle);
-        buttonOptions.addListener(new ClickListener() {
+        screenBuilder.table().add();
+        screenBuilder.addButton("Options", new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 Settings.vibrateAndBeepIfAvailable();
                 show2();// acao do botao (ir para uma nova tela de GameStart)
             }
-        });
+        }).row();
 
-        buttonExit = new TextButton("Exit", textButtonStyle);
-        buttonExit.addListener(new ClickListener() {
+        screenBuilder.table().add();
+        screenBuilder.addButton("Exit", new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 Settings.vibrateAndBeepIfAvailable();
                 Gdx.app.exit(); // acao do botao
             }
-        });
+        }).row();
         // ---------------------------
 
-       criaConfiguraTabela();
-
-        // row significa nova linha, mesma coisa de table.add(labelTitle); table.row();
-
-        table.add(labelHighscore).expandX();
-        table.add(labelTitle).expandX();
-        table.add(labelUser).expandX().row();
-
-        table.add();
-        table.add(buttonStart).row();
-        table.add();
-        table.add(buttonLeaderboards).row();
-        table.add();
-        table.add(buttonOptions).row();
-        table.add();
-        table.add(buttonExit).row();
-
-        stage.addActor(table); // adiciona no stage
-        Gdx.input.setInputProcessor(stage); // adiciona esse stage ao processamento padrao do jogo
+        screenBuilder.finish();
     }
 
     public void show2() {
         super.show();
-        stage = new Stage();
+        ScreenBuilder screenBuilder = new ScreenBuilder(ScreenBuilder.Size.MEDIUM);
 
-        Label labelTitle = new Label("Options", labelStyle);
-        labelTitle.setAlignment(Align.center);
-
-        buttonSound = new TextButton(Settings.prefs.getBoolean(Settings.RF_PREFERENCES_SOUND) ? "Sound On" : "Sound Off", textButtonStyle);
-        buttonSound.addListener(new ClickListener() {
+        screenBuilder.addLabel("Options").row();
+        screenBuilder.addButton(Settings.prefs.getBoolean(Settings.RF_PREFERENCES_SOUND) ? "Sound On" : "Sound Off", new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 Settings.vibrateAndBeepIfAvailable();
                 Settings.prefs.putBoolean(Settings.RF_PREFERENCES_SOUND, !Settings.prefs.getBoolean(Settings.RF_PREFERENCES_SOUND)).flush();
                 show2();// acao do botao
             }
-        });
+        }).row();
 
-        buttonVibrate = new TextButton(Settings.prefs.getBoolean(Settings.RF_PREFERENCES_VIBRATE) ? "Vibrate On" : "Vibrate Off", textButtonStyle);
-        buttonVibrate.addListener(new ClickListener() {
+        screenBuilder.addButton(Settings.prefs.getBoolean(Settings.RF_PREFERENCES_VIBRATE) ? "Vibrate On" : "Vibrate Off", new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 Settings.prefs.putBoolean(Settings.RF_PREFERENCES_VIBRATE, !Settings.prefs.getBoolean(Settings.RF_PREFERENCES_VIBRATE)).flush();
                 Settings.vibrateAndBeepIfAvailable();
                 show2();
             }
-        });
+        }).row();
 
-        buttonUsername = new TextButton("", textButtonStyle);
-        setTextButtonUsername();
-        buttonUsername.addListener(new ClickListener() {
+        screenBuilder.addButton("Change username: " + Settings.prefs.getString(Settings.RF_PREFERENCES_USER), new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 verificaNomeUsuario();
+                show2();
             }
-        });
+        }).row();
 
-        buttonHelp = new TextButton("Help", textButtonStyle);
-        buttonHelp.addListener(new ClickListener() {
+        screenBuilder.addButton("Help", new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 Settings.vibrateAndBeepIfAvailable();
                 help();// acao do botao (ir para uma nova tela de GameStart)
             }
-        });
+        }).row();
 
-        buttonBack = new TextButton("<", textButtonStyle);
-        buttonBack.addListener(new ClickListener() {
+        screenBuilder.addButton("<", new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 Settings.vibrateAndBeepIfAvailable();
                 show(); // acao do botao (ir para uma nova tela de GameStart)
             }
-        });
+        }).row();
 
-        criaConfiguraTabela();
-
-        table.add(labelTitle).row();
-        table.add(buttonSound).row();
-        table.add(buttonVibrate).row();
-        table.add(buttonUsername).row();
-        table.add(buttonHelp).row();
-        table.add(buttonBack).row();
-
-        stage.addActor(table);
-        Gdx.input.setInputProcessor(stage);
+        screenBuilder.finish();
     }
 
     public void help(){
         super.show();
-        stage = new Stage();
+        ScreenBuilder screenBuilder = new ScreenBuilder(ScreenBuilder.Size.MEDIUM);
 
-        Label labelTitle = new Label("Help", labelStyle);
-        labelTitle.setAlignment(Align.center);
+        screenBuilder.addLabel("Help").row();
 
-        Label.LabelStyle helpLabelStyle = new Label.LabelStyle(); // estilo do titulo
-        helpLabelStyle.font = Assets.font_small; // fonte grande que foi gerada
+        screenBuilder.addLabel("\n" +
+                "You need to defeat your enemies,\n" +
+                "throwing them out of the arena.\n" +
+                "Tilt your device to move the ball.\n" +
+                "Press the >>> button to dash.\n\n" +
+                "Everytime you finish a game, \n" +
+                "your highscore will be calculated.\n" +
+                "Go to locations with multipliers to\n" +
+                "gather even more points!\n\n", ScreenBuilder.Size.SMALL, Align.center).row();
 
-        Label labelTitle2 = new Label("\nYou need to defeat your enemies," +
-                "\nthrowing them out of the arena." +
-                "\nTilt your device to move the ball." +
-                "\nPress the >>> button to dash." +
-                "\n\nEverytime you finish a game, " +
-                "\nyour highscore will be calculated." +
-                "\nGo to locations with multipliers to" +
-                "\ngather even more points!", helpLabelStyle);
-        labelTitle2.setAlignment(Align.center);
-
-        buttonBack = new TextButton("<", textButtonStyle);
-        buttonBack.addListener(new ClickListener() {
+        screenBuilder.addButton("<", new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 Settings.vibrateAndBeepIfAvailable();
@@ -253,77 +179,68 @@ public class MainMenuScreen extends ScreenAdapter {
             }
         });
 
-        criaConfiguraTabela();
-
-        table.add(labelTitle).row();
-        table.add(new Label("", labelStyle)).row();
-        table.add(labelTitle2).row();
-        table.add(new Label("", labelStyle)).row();
-        table.add(buttonBack).row();
-
-        stage.addActor(table);
-        Gdx.input.setInputProcessor(stage);
+        screenBuilder.finish();
     }
 
     public void leaderboards() {
         super.show();
-        stage = new Stage();
+        ScreenBuilder screenBuilder = new ScreenBuilder(ScreenBuilder.Size.MEDIUM);
 
-        // titulo
-        Label labelTitle = new Label("Leaderboards", labelStyle);
-        labelTitle.setAlignment(Align.center);
+        screenBuilder.addLabel("Leaderboards").row();
 
-        // botoes
-        // --------------------------
-        buttonLBall = new TextButton("Top leaderboards", textButtonStyle);
-        buttonLBall.addListener(new ClickListener() {
+        screenBuilder.addButton("Top leaderboards", new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 Settings.vibrateAndBeepIfAvailable();
-                // TODO abrir lista todos
-                JSONArray b = WebClient.getLeaderboard();
-                Log.i("rf2", b.toString());
+                showList(WebClient.getLeaderboard());
             }
-        });
-        buttonLBuser = new TextButton("User leaderboards", textButtonStyle);
-        buttonLBuser.addListener(new ClickListener() {
+        }).row();
+        screenBuilder.addButton("User leaderboards", new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 Settings.vibrateAndBeepIfAvailable();
-                // TODO abrir lista user
-                JSONArray a = WebClient.getLeaderboard(Settings.prefs.getString(Settings.RF_PREFERENCES_USER));
-                Log.i("rf2", a.toString());
+                showList(WebClient.getLeaderboard(Settings.prefs.getString(Settings.RF_PREFERENCES_USER)));
             }
-        });
-        buttonSubmit = new TextButton("Submit my highscore", textButtonStyle);
-        buttonSubmit.addListener(new ClickListener() {
+        }).row();
+        screenBuilder.addButton("Submit my highscore", new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 Settings.vibrateAndBeepIfAvailable();
                 WebClient.postScore(Settings.prefs.getString(Settings.RF_PREFERENCES_USER), Settings.prefs.getFloat(Settings.RF_PREFERENCES_HIGHSCORE));
-
             }
-        });
-        buttonBack = new TextButton("<", textButtonStyle);
-        buttonBack.addListener(new ClickListener() {
+        }).row();
+        screenBuilder.addButton("<", new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 Settings.vibrateAndBeepIfAvailable();
                 show(); // acao do botao (ir para uma nova tela de GameStart)
             }
-        });
-        // ---------------------------
+        }).row();
 
-        criaConfiguraTabela();
+        screenBuilder.finish();
+    }
 
-        // row significa nova linha, mesma coisa de table.add(labelTitle); table.row();
-        table.add(labelTitle).row();
-        table.add(buttonLBall).row();
-        table.add(buttonLBuser).row();
-        table.add(buttonSubmit).row();
-        table.add(buttonBack).row();
+    void showList(JSONArray jsonArray) {
+        super.show();
+        ScreenBuilder screenBuilder = new ScreenBuilder(ScreenBuilder.Size.SMALL);
 
-        stage.addActor(table); // adiciona no stage
-        Gdx.input.setInputProcessor(stage); // adiciona esse stage ao processamento padrao do jogo
+        screenBuilder.addButton("<", (new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                Settings.vibrateAndBeepIfAvailable();
+                leaderboards();
+            }
+        })).row();
+
+        for (int i = 0; i < jsonArray.length(); i++) {
+            try {
+                screenBuilder.addLabel(jsonArray.getJSONObject(i).getString("user")).expandX();
+                screenBuilder.addLabel(String.format("%.0f", jsonArray.getJSONObject(i).getDouble("points"))).expandX().row();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        screenBuilder.finish();
     }
 }
